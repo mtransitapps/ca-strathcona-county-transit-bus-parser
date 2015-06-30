@@ -27,8 +27,6 @@ import org.mtransit.parser.mt.data.MTrip;
 // https://data.strathcona.ca/download/cvta-prr6/application/zip
 public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
-	private static final String CITP = "Ctr in the Park";
-
 	public static void main(String[] args) {
 		if (args == null || args.length == 0) {
 			args = new String[3];
@@ -129,6 +127,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	private static final String OAK_ST = "Oak St";
 	private static final String VILLAGE = "Village";
 	private static final String BROADMOOR = "Broadmoor";
+	private static final String CITP = "Ctr in the Park";
 
 	private static final String RLN_401 = TC + " - " + EDM_CITY_CTR;
 	private static final String RLN_403 = TC + " - " + GOV_CTR;
@@ -377,8 +376,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 			System.out.printf("Unexpected trip (route ID: %s): %s\n", mRoute.id, gTrip);
 			System.exit(-1);
 		}
-		System.out.printf("Unexpected trip (unexpected route ID: %s): %s\n", mRoute.id, gTrip);
-		System.exit(-1);
+		mTrip.setHeadsignString(cleanTripHeadsign(gTrip.trip_headsign), gTrip.direction_id);
 	}
 
 	@Override
