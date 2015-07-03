@@ -574,13 +574,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		String beforeAfter = getBeforeAfterStopId(gtfs, gTrip, gTripStop, stopIdsTowards1, stopIdsTowards2, stopIdsTowardsBoth21, stopIdsTowardsBoth12,
 				allBeforeAfterStopIds);
 		if (stopIdsTowards1.contains(beforeAfter)) {
-			return new Pair<Long[], Integer[]>(new Long[] { tidTowardsStop1 }, new Integer[] { gTripStop.stop_sequence });
+			return new Pair<Long[], Integer[]>(new Long[] { tidTowardsStop1 }, new Integer[] { gTripStop.getStopSequence() });
 		} else if (stopIdsTowards2.contains(beforeAfter)) {
-			return new Pair<Long[], Integer[]>(new Long[] { tidTowardsStop2 }, new Integer[] { gTripStop.stop_sequence });
+			return new Pair<Long[], Integer[]>(new Long[] { tidTowardsStop2 }, new Integer[] { gTripStop.getStopSequence() });
 		} else if (stopIdsTowardsBoth21.contains(beforeAfter)) {
-			return new Pair<Long[], Integer[]>(new Long[] { tidTowardsStop2, tidTowardsStop1 }, new Integer[] { 1, gTripStop.stop_sequence });
+			return new Pair<Long[], Integer[]>(new Long[] { tidTowardsStop2, tidTowardsStop1 }, new Integer[] { 1, gTripStop.getStopSequence() });
 		} else if (stopIdsTowardsBoth12.contains(beforeAfter)) {
-			return new Pair<Long[], Integer[]>(new Long[] { tidTowardsStop1, tidTowardsStop2 }, new Integer[] { 1, gTripStop.stop_sequence });
+			return new Pair<Long[], Integer[]>(new Long[] { tidTowardsStop1, tidTowardsStop2 }, new Integer[] { 1, gTripStop.getStopSequence() });
 		}
 		System.out.println("Unexptected trip stop to split " + gTripStop);
 		System.exit(-1);
@@ -594,32 +594,33 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		ArrayList<Integer> afterStopSequence = new ArrayList<Integer>();
 		ArrayList<String> beforeStopIds = new ArrayList<String>();
 		ArrayList<Integer> beforeStopSequence = new ArrayList<Integer>();
-		for (GStopTime gStopTime : gtfs.stopTimes) {
+		for (GStopTime gStopTime : gtfs.getStopTimes(gTrip.getTripId(), null, null)) {
 			if (!gStopTime.trip_id.equals(gTrip.getTripId())) {
 				continue;
 			}
-			if (allBeforeAfterStopIds.contains(gStopTime.stop_id)) {
-				if (gStopTime.stop_sequence < gTripStop.stop_sequence) {
-					beforeStopIds.add(gStopTime.stop_id);
-					beforeStopSequence.add(gStopTime.stop_sequence);
+			if (allBeforeAfterStopIds.contains(gStopTime.getStopId())) {
+				if (gStopTime.getStopSequence() < gTripStop.getStopSequence()) {
+					beforeStopIds.add(gStopTime.getStopId());
+					beforeStopSequence.add(gStopTime.getStopSequence());
 				}
-				if (gStopTime.stop_sequence > gTripStop.stop_sequence) {
-					afterStopIds.add(gStopTime.stop_id);
-					afterStopSequence.add(gStopTime.stop_sequence);
+				if (gStopTime.getStopSequence() > gTripStop.getStopSequence()) {
+					afterStopIds.add(gStopTime.getStopId());
+					afterStopSequence.add(gStopTime.getStopSequence());
 				}
 			}
-			if (gStopTime.stop_sequence > gStopMaxSequence) {
-				gStopMaxSequence = gStopTime.stop_sequence;
+			if (gStopTime.getStopSequence() > gStopMaxSequence) {
+				gStopMaxSequence = gStopTime.getStopSequence();
 			}
 		}
-		if (allBeforeAfterStopIds.contains(gTripStop.stop_id)) {
-			if (gTripStop.stop_sequence == 1) {
-				beforeStopIds.add(gTripStop.stop_id);
-				beforeStopSequence.add(gTripStop.stop_sequence);
+		if (allBeforeAfterStopIds.contains(gTripStop.getStopId())) {
+			if (gTripStop.getStopSequence() == 1) {
+				beforeStopIds.add(gTripStop.getStopId());
+				beforeStopSequence.add(gTripStop.getStopSequence());
 			}
-			if (gTripStop.stop_sequence == gStopMaxSequence) {
-				afterStopIds.add(gTripStop.stop_id);
-				afterStopSequence.add(gTripStop.stop_sequence);
+			// System.out.println("max sequence: " + gStopMaxSequence);
+			if (gTripStop.getStopSequence() == gStopMaxSequence) {
+				afterStopIds.add(gTripStop.getStopId());
+				afterStopSequence.add(gTripStop.getStopSequence());
 			}
 		}
 		String beforeAfterStopIdCandidate = findBeforeAfterStopIdCandidate(gTripStop, stopIdsTowards1, stopIdsTowards2, stopIdsTowardsBoth21,
@@ -644,7 +645,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				afterStopId = afterStopIds.get(a);
 				beforeAfterStopIdCurrent = beforeStopId + DASH + afterStopId;
 				if (stopIdsTowards1.contains(beforeAfterStopIdCurrent) || stopIdsTowards2.contains(beforeAfterStopIdCurrent)) {
-					int size = Math.max(afterStopSequence.get(a) - gTripStop.stop_sequence, gTripStop.stop_sequence - beforeStopSequence.get(b));
+					int size = Math.max(afterStopSequence.get(a) - gTripStop.getStopSequence(), gTripStop.getStopSequence() - beforeStopSequence.get(b));
 					if (beforeAfterStopIdCandidate == null || size < beforeAfterStopIdCandidate.first) {
 						beforeAfterStopIdCandidate = new Pair<Integer, String>(size, beforeAfterStopIdCurrent);
 					}
@@ -655,7 +656,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 			beforeStopId = beforeStopIds.get(b);
 			beforeAfterStopIdCurrent = beforeStopId + DASH + ALL;
 			if (stopIdsTowards1.contains(beforeAfterStopIdCurrent) || stopIdsTowards2.contains(beforeAfterStopIdCurrent)) {
-				int size = gTripStop.stop_sequence - beforeStopSequence.get(b);
+				int size = gTripStop.getStopSequence() - beforeStopSequence.get(b);
 				if (beforeAfterStopIdCandidate == null || size < beforeAfterStopIdCandidate.first) {
 					beforeAfterStopIdCandidate = new Pair<Integer, String>(size, beforeAfterStopIdCurrent);
 				}
@@ -665,7 +666,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 			afterStopId = afterStopIds.get(a);
 			beforeAfterStopIdCurrent = ALL + DASH + afterStopId;
 			if (stopIdsTowards1.contains(beforeAfterStopIdCurrent) || stopIdsTowards2.contains(beforeAfterStopIdCurrent)) {
-				int size = afterStopSequence.get(a) - gTripStop.stop_sequence;
+				int size = afterStopSequence.get(a) - gTripStop.getStopSequence();
 				if (beforeAfterStopIdCandidate == null || size < beforeAfterStopIdCandidate.first) {
 					beforeAfterStopIdCandidate = new Pair<Integer, String>(size, beforeAfterStopIdCurrent);
 				}
@@ -675,12 +676,12 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 			beforeStopId = beforeStopIds.get(b);
 			for (int a = 0; a < afterStopIds.size(); a++) {
 				afterStopId = afterStopIds.get(a);
-				if (gTripStop.stop_id.equals(beforeStopId) && gTripStop.stop_id.equals(afterStopId)) {
+				if (gTripStop.getStopId().equals(beforeStopId) && gTripStop.getStopId().equals(afterStopId)) {
 					continue;
 				}
 				beforeAfterStopIdCurrent = beforeStopId + DASH + afterStopId;
 				if (stopIdsTowardsBoth21.contains(beforeAfterStopIdCurrent) || stopIdsTowardsBoth12.contains(beforeAfterStopIdCurrent)) {
-					int size = Math.max(afterStopSequence.get(a) - gTripStop.stop_sequence, gTripStop.stop_sequence - beforeStopSequence.get(b));
+					int size = Math.max(afterStopSequence.get(a) - gTripStop.getStopSequence(), gTripStop.getStopSequence() - beforeStopSequence.get(b));
 					if (beforeAfterStopIdCandidate == null || size < beforeAfterStopIdCandidate.first) {
 						beforeAfterStopIdCandidate = new Pair<Integer, String>(size, beforeAfterStopIdCurrent);
 					}
@@ -691,7 +692,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 			beforeStopId = beforeStopIds.get(b);
 			beforeAfterStopIdCurrent = beforeStopId + DASH + ALL;
 			if (stopIdsTowardsBoth21.contains(beforeAfterStopIdCurrent) || stopIdsTowardsBoth12.contains(beforeAfterStopIdCurrent)) {
-				int size = gTripStop.stop_sequence - beforeStopSequence.get(b);
+				int size = gTripStop.getStopSequence() - beforeStopSequence.get(b);
 				if (beforeAfterStopIdCandidate == null || size < beforeAfterStopIdCandidate.first) {
 					beforeAfterStopIdCandidate = new Pair<Integer, String>(size, beforeAfterStopIdCurrent);
 				}
@@ -701,7 +702,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 			afterStopId = afterStopIds.get(a);
 			beforeAfterStopIdCurrent = ALL + DASH + afterStopId;
 			if (stopIdsTowardsBoth21.contains(beforeAfterStopIdCurrent) || stopIdsTowardsBoth12.contains(beforeAfterStopIdCurrent)) {
-				int size = afterStopSequence.get(a) - gTripStop.stop_sequence;
+				int size = afterStopSequence.get(a) - gTripStop.getStopSequence();
 				if (beforeAfterStopIdCandidate == null || size < beforeAfterStopIdCandidate.first) {
 					beforeAfterStopIdCandidate = new Pair<Integer, String>(size, beforeAfterStopIdCurrent);
 				}
