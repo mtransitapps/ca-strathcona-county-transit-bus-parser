@@ -1,25 +1,24 @@
 package org.mtransit.parser.ca_strathcona_county_transit_bus;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.mtransit.parser.CleanUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.Pair;
+import org.mtransit.parser.SplitUtils;
+import org.mtransit.parser.SplitUtils.RouteTripSpec;
 import org.mtransit.parser.Utils;
 import org.mtransit.parser.gtfs.data.GCalendar;
 import org.mtransit.parser.gtfs.data.GCalendarDate;
 import org.mtransit.parser.gtfs.data.GRoute;
 import org.mtransit.parser.gtfs.data.GSpec;
-import org.mtransit.parser.gtfs.data.GStopTime;
 import org.mtransit.parser.gtfs.data.GTrip;
 import org.mtransit.parser.gtfs.data.GTripStop;
 import org.mtransit.parser.mt.data.MAgency;
 import org.mtransit.parser.mt.data.MRoute;
-import org.mtransit.parser.mt.data.MSpec;
 import org.mtransit.parser.mt.data.MTrip;
 
 // https://data.strathcona.ca/
@@ -41,11 +40,11 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public void start(String[] args) {
-		System.out.printf("Generating Strathcona County Transit bus data...\n");
+		System.out.printf("\nGenerating Strathcona County Transit bus data...\n");
 		long start = System.currentTimeMillis();
 		this.serviceIds = extractUsefulServiceIds(args, this);
 		super.start(args);
-		System.out.printf("Generating Strathcona County Transit bus data... DONE in %s.\n", Utils.getPrettyDuration(System.currentTimeMillis() - start));
+		System.out.printf("\nGenerating Strathcona County Transit bus data... DONE in %s.\n", Utils.getPrettyDuration(System.currentTimeMillis() - start));
 	}
 
 	@Override
@@ -381,12 +380,9 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public String cleanTripHeadsign(String tripHeadsign) {
-		tripHeadsign = MSpec.cleanStreetTypes(tripHeadsign);
-		return MSpec.cleanLabel(tripHeadsign);
+		tripHeadsign = CleanUtils.cleanStreetTypes(tripHeadsign);
+		return CleanUtils.cleanLabel(tripHeadsign);
 	}
-
-	private static final String DASH = "-";
-	private static final String ALL = "*";
 
 	private static final String STOP_ID_1223 = "1223"; // _106_ST_AND_117_AVE
 	private static final String STOP_ID_1227 = "1227"; // _106_ST_AND_117_AVE
@@ -554,10 +550,10 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
-	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, HashSet<MTrip> splitTrips, GSpec gtfs) {
+	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, HashSet<MTrip> splitTrips, GSpec routeGTFS) {
 		if (ALL_ROUTE_TRIPS.containsKey(mRoute.id)) {
 			RouteTripSpec rts = ALL_ROUTE_TRIPS.get(mRoute.id);
-			return splitTripStop(gTrip, gTripStop, gtfs, //
+			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, //
 					rts.getBeforeAfterStopIds(0), //
 					rts.getBeforeAfterStopIds(1), //
 					rts.getBeforeAfterBothStopIds(0), //
@@ -566,150 +562,10 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 					rts.getTripId(1), //
 					rts.getAllBeforeAfterStopIds());
 		}
-		return super.splitTripStop(mRoute, gTrip, gTripStop, splitTrips, gtfs);
+		return super.splitTripStop(mRoute, gTrip, gTripStop, splitTrips, routeGTFS);
 	}
 
-	private Pair<Long[], Integer[]> splitTripStop(GTrip gTrip, GTripStop gTripStop, GSpec gtfs, List<String> stopIdsTowards1, List<String> stopIdsTowards2,
-			List<String> stopIdsTowardsBoth21, List<String> stopIdsTowardsBoth12, long tidTowardsStop1, long tidTowardsStop2, List<String> allBeforeAfterStopIds) {
-		String beforeAfter = getBeforeAfterStopId(gtfs, gTrip, gTripStop, stopIdsTowards1, stopIdsTowards2, stopIdsTowardsBoth21, stopIdsTowardsBoth12,
-				allBeforeAfterStopIds);
-		if (stopIdsTowards1.contains(beforeAfter)) {
-			return new Pair<Long[], Integer[]>(new Long[] { tidTowardsStop1 }, new Integer[] { gTripStop.getStopSequence() });
-		} else if (stopIdsTowards2.contains(beforeAfter)) {
-			return new Pair<Long[], Integer[]>(new Long[] { tidTowardsStop2 }, new Integer[] { gTripStop.getStopSequence() });
-		} else if (stopIdsTowardsBoth21.contains(beforeAfter)) {
-			return new Pair<Long[], Integer[]>(new Long[] { tidTowardsStop2, tidTowardsStop1 }, new Integer[] { 1, gTripStop.getStopSequence() });
-		} else if (stopIdsTowardsBoth12.contains(beforeAfter)) {
-			return new Pair<Long[], Integer[]>(new Long[] { tidTowardsStop1, tidTowardsStop2 }, new Integer[] { 1, gTripStop.getStopSequence() });
-		}
-		System.out.println("Unexptected trip stop to split " + gTripStop);
-		System.exit(-1);
-		return null;
-	}
 
-	private String getBeforeAfterStopId(GSpec gtfs, GTrip gTrip, GTripStop gTripStop, List<String> stopIdsTowards1, List<String> stopIdsTowards2,
-			List<String> stopIdsTowardsBoth21, List<String> stopIdsTowardsBoth12, List<String> allBeforeAfterStopIds) {
-		int gStopMaxSequence = -1;
-		ArrayList<String> afterStopIds = new ArrayList<String>();
-		ArrayList<Integer> afterStopSequence = new ArrayList<Integer>();
-		ArrayList<String> beforeStopIds = new ArrayList<String>();
-		ArrayList<Integer> beforeStopSequence = new ArrayList<Integer>();
-		for (GStopTime gStopTime : gtfs.getStopTimes(gTrip.getTripId(), null, null)) {
-			if (!gStopTime.trip_id.equals(gTrip.getTripId())) {
-				continue;
-			}
-			if (allBeforeAfterStopIds.contains(gStopTime.getStopId())) {
-				if (gStopTime.getStopSequence() < gTripStop.getStopSequence()) {
-					beforeStopIds.add(gStopTime.getStopId());
-					beforeStopSequence.add(gStopTime.getStopSequence());
-				}
-				if (gStopTime.getStopSequence() > gTripStop.getStopSequence()) {
-					afterStopIds.add(gStopTime.getStopId());
-					afterStopSequence.add(gStopTime.getStopSequence());
-				}
-			}
-			if (gStopTime.getStopSequence() > gStopMaxSequence) {
-				gStopMaxSequence = gStopTime.getStopSequence();
-			}
-		}
-		if (allBeforeAfterStopIds.contains(gTripStop.getStopId())) {
-			if (gTripStop.getStopSequence() == 1) {
-				beforeStopIds.add(gTripStop.getStopId());
-				beforeStopSequence.add(gTripStop.getStopSequence());
-			}
-			// System.out.println("max sequence: " + gStopMaxSequence);
-			if (gTripStop.getStopSequence() == gStopMaxSequence) {
-				afterStopIds.add(gTripStop.getStopId());
-				afterStopSequence.add(gTripStop.getStopSequence());
-			}
-		}
-		String beforeAfterStopIdCandidate = findBeforeAfterStopIdCandidate(gTripStop, stopIdsTowards1, stopIdsTowards2, stopIdsTowardsBoth21,
-				stopIdsTowardsBoth12, afterStopIds, afterStopSequence, beforeStopIds, beforeStopSequence);
-		if (beforeAfterStopIdCandidate != null) {
-			return beforeAfterStopIdCandidate;
-		}
-		System.out.println("Unexpected trip (befores:" + beforeStopIds + "|afters:" + afterStopIds + ") " + gTrip);
-		System.exit(-1);
-		return null;
-	}
-
-	private String findBeforeAfterStopIdCandidate(GTripStop gTripStop, List<String> stopIdsTowards1, List<String> stopIdsTowards2,
-			List<String> stopIdsTowardsBoth21, List<String> stopIdsTowardsBoth12, ArrayList<String> afterStopIds, ArrayList<Integer> afterStopSequence,
-			ArrayList<String> beforeStopIds, ArrayList<Integer> beforeStopSequence) {
-		String beforeAfterStopIdCurrent;
-		Pair<Integer, String> beforeAfterStopIdCandidate = null;
-		String beforeStopId, afterStopId;
-		for (int b = 0; b < beforeStopIds.size(); b++) {
-			beforeStopId = beforeStopIds.get(b);
-			for (int a = 0; a < afterStopIds.size(); a++) {
-				afterStopId = afterStopIds.get(a);
-				beforeAfterStopIdCurrent = beforeStopId + DASH + afterStopId;
-				if (stopIdsTowards1.contains(beforeAfterStopIdCurrent) || stopIdsTowards2.contains(beforeAfterStopIdCurrent)) {
-					int size = Math.max(afterStopSequence.get(a) - gTripStop.getStopSequence(), gTripStop.getStopSequence() - beforeStopSequence.get(b));
-					if (beforeAfterStopIdCandidate == null || size < beforeAfterStopIdCandidate.first) {
-						beforeAfterStopIdCandidate = new Pair<Integer, String>(size, beforeAfterStopIdCurrent);
-					}
-				}
-			}
-		}
-		for (int b = 0; b < beforeStopIds.size(); b++) {
-			beforeStopId = beforeStopIds.get(b);
-			beforeAfterStopIdCurrent = beforeStopId + DASH + ALL;
-			if (stopIdsTowards1.contains(beforeAfterStopIdCurrent) || stopIdsTowards2.contains(beforeAfterStopIdCurrent)) {
-				int size = gTripStop.getStopSequence() - beforeStopSequence.get(b);
-				if (beforeAfterStopIdCandidate == null || size < beforeAfterStopIdCandidate.first) {
-					beforeAfterStopIdCandidate = new Pair<Integer, String>(size, beforeAfterStopIdCurrent);
-				}
-			}
-		}
-		for (int a = 0; a < afterStopIds.size(); a++) {
-			afterStopId = afterStopIds.get(a);
-			beforeAfterStopIdCurrent = ALL + DASH + afterStopId;
-			if (stopIdsTowards1.contains(beforeAfterStopIdCurrent) || stopIdsTowards2.contains(beforeAfterStopIdCurrent)) {
-				int size = afterStopSequence.get(a) - gTripStop.getStopSequence();
-				if (beforeAfterStopIdCandidate == null || size < beforeAfterStopIdCandidate.first) {
-					beforeAfterStopIdCandidate = new Pair<Integer, String>(size, beforeAfterStopIdCurrent);
-				}
-			}
-		}
-		for (int b = 0; b < beforeStopIds.size(); b++) {
-			beforeStopId = beforeStopIds.get(b);
-			for (int a = 0; a < afterStopIds.size(); a++) {
-				afterStopId = afterStopIds.get(a);
-				if (gTripStop.getStopId().equals(beforeStopId) && gTripStop.getStopId().equals(afterStopId)) {
-					continue;
-				}
-				beforeAfterStopIdCurrent = beforeStopId + DASH + afterStopId;
-				if (stopIdsTowardsBoth21.contains(beforeAfterStopIdCurrent) || stopIdsTowardsBoth12.contains(beforeAfterStopIdCurrent)) {
-					int size = Math.max(afterStopSequence.get(a) - gTripStop.getStopSequence(), gTripStop.getStopSequence() - beforeStopSequence.get(b));
-					if (beforeAfterStopIdCandidate == null || size < beforeAfterStopIdCandidate.first) {
-						beforeAfterStopIdCandidate = new Pair<Integer, String>(size, beforeAfterStopIdCurrent);
-					}
-				}
-			}
-		}
-		for (int b = 0; b < beforeStopIds.size(); b++) {
-			beforeStopId = beforeStopIds.get(b);
-			beforeAfterStopIdCurrent = beforeStopId + DASH + ALL;
-			if (stopIdsTowardsBoth21.contains(beforeAfterStopIdCurrent) || stopIdsTowardsBoth12.contains(beforeAfterStopIdCurrent)) {
-				int size = gTripStop.getStopSequence() - beforeStopSequence.get(b);
-				if (beforeAfterStopIdCandidate == null || size < beforeAfterStopIdCandidate.first) {
-					beforeAfterStopIdCandidate = new Pair<Integer, String>(size, beforeAfterStopIdCurrent);
-				}
-			}
-		}
-		for (int a = 0; a < afterStopIds.size(); a++) {
-			afterStopId = afterStopIds.get(a);
-			beforeAfterStopIdCurrent = ALL + DASH + afterStopId;
-			if (stopIdsTowardsBoth21.contains(beforeAfterStopIdCurrent) || stopIdsTowardsBoth12.contains(beforeAfterStopIdCurrent)) {
-				int size = afterStopSequence.get(a) - gTripStop.getStopSequence();
-				if (beforeAfterStopIdCandidate == null || size < beforeAfterStopIdCandidate.first) {
-					beforeAfterStopIdCandidate = new Pair<Integer, String>(size, beforeAfterStopIdCurrent);
-				}
-			}
-		}
-		return beforeAfterStopIdCandidate.second;
-	}
 
 	private static final Pattern AND = Pattern.compile("( and )", Pattern.CASE_INSENSITIVE);
 	private static final String AND_REPLACEMENT = " & ";
@@ -721,150 +577,9 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	public String cleanStopName(String gStopName) {
 		gStopName = AT.matcher(gStopName).replaceAll(AT_REPLACEMENT);
 		gStopName = AND.matcher(gStopName).replaceAll(AND_REPLACEMENT);
-		gStopName = MSpec.cleanStreetTypes(gStopName);
-		gStopName = MSpec.cleanNumbers(gStopName);
-		return MSpec.cleanLabel(gStopName);
+		gStopName = CleanUtils.cleanStreetTypes(gStopName);
+		gStopName = CleanUtils.cleanNumbers(gStopName);
+		return CleanUtils.cleanLabel(gStopName);
 	}
 
-	private static class RouteTripSpec {
-
-		private long routeId;
-		private int directionId0;
-		private int headsignType0;
-		private String headsignString0;
-		private int directionId1;
-		private int headsignType1;
-		private String headsignString1;
-
-		public RouteTripSpec(long routeId, int directionId0, int headsignType0, String headsignString0, int directionId1, int headsignType1,
-				String headsignString1) {
-			this.routeId = routeId;
-			this.directionId0 = directionId0;
-			this.headsignType0 = headsignType0;
-			this.headsignString0 = headsignString0;
-			this.directionId1 = directionId1;
-			this.headsignType1 = headsignType1;
-			this.headsignString1 = headsignString1;
-		}
-
-		private ArrayList<String> allBeforeAfterStopIds = new ArrayList<String>();
-
-		public ArrayList<String> getAllBeforeAfterStopIds() {
-			return this.allBeforeAfterStopIds;
-		}
-
-		public long getTripId(int directionId) {
-			return MTrip.getNewId(this.routeId, directionId);
-		}
-
-		private HashMap<Integer, ArrayList<String>> beforeAfterStopIds = new HashMap<Integer, ArrayList<String>>();
-
-		public ArrayList<String> getBeforeAfterStopIds(int directionId) {
-			if (!this.beforeAfterStopIds.containsKey(directionId)) {
-				this.beforeAfterStopIds.put(directionId, new ArrayList<String>());
-			}
-			return this.beforeAfterStopIds.get(directionId);
-		}
-
-		private HashMap<Integer, ArrayList<String>> beforeAfterBothStopIds = new HashMap<Integer, ArrayList<String>>();
-
-		public ArrayList<String> getBeforeAfterBothStopIds(int directionId) {
-			if (!this.beforeAfterBothStopIds.containsKey(directionId)) {
-				this.beforeAfterBothStopIds.put(directionId, new ArrayList<String>());
-			}
-			return this.beforeAfterBothStopIds.get(directionId);
-		}
-
-		private HashSet<MTrip> allTrips = null;
-
-		public HashSet<MTrip> getAllTrips() {
-			if (this.allTrips == null) {
-				initAllTrips();
-			}
-			return this.allTrips;
-		}
-
-		private void initAllTrips() {
-			this.allTrips = new HashSet<MTrip>();
-			if (this.headsignType0 == MTrip.HEADSIGN_TYPE_STRING) {
-				this.allTrips.add(new MTrip(this.routeId).setHeadsignString(this.headsignString0, this.directionId0));
-			} else {
-				System.out.println("Unexpected trip type " + this.headsignType0 + " for " + this.routeId);
-				System.exit(-1);
-			}
-			if (this.headsignType1 == MTrip.HEADSIGN_TYPE_STRING) {
-				this.allTrips.add(new MTrip(this.routeId).setHeadsignString(this.headsignString1, this.directionId1));
-			} else {
-				System.out.println("Unexpected trip type " + this.headsignType1 + " for " + this.routeId);
-				System.exit(-1);
-			}
-		}
-
-		public RouteTripSpec addALLFromTo(int directionId, String stopIdFrom, String stopIdTo) {
-			addBeforeAfter(directionId, stopIdFrom + DASH + ALL);
-			addBeforeAfter(directionId, ALL + DASH + stopIdTo);
-			addBeforeAfter(directionId, stopIdFrom + DASH + stopIdTo);
-			this.allBeforeAfterStopIds.add(stopIdFrom);
-			this.allBeforeAfterStopIds.add(stopIdTo);
-			return this;
-		}
-
-		@SuppressWarnings("unused")
-		public RouteTripSpec addAllFrom(int directionId, String stopIdFrom) {
-			addBeforeAfter(directionId, stopIdFrom + DASH + ALL);
-			this.allBeforeAfterStopIds.add(stopIdFrom);
-			return this;
-		}
-
-		@SuppressWarnings("unused")
-		public RouteTripSpec addAllTo(int directionId, String stopIdTo) {
-			addBeforeAfter(directionId, ALL + DASH + stopIdTo);
-			this.allBeforeAfterStopIds.add(stopIdTo);
-			return this;
-		}
-
-		@SuppressWarnings("unused")
-		public RouteTripSpec addFromTo(int directionId, String stopIdFrom, String stopIdTo) {
-			addBeforeAfter(directionId, stopIdFrom + DASH + stopIdTo);
-			this.allBeforeAfterStopIds.add(stopIdFrom);
-			this.allBeforeAfterStopIds.add(stopIdTo);
-			return this;
-		}
-
-		private void addBeforeAfter(int directionId, String beforeAfterStopId) {
-			if (!this.beforeAfterStopIds.containsKey(directionId)) {
-				this.beforeAfterStopIds.put(directionId, new ArrayList<String>());
-			}
-			this.beforeAfterStopIds.get(directionId).add(beforeAfterStopId);
-		}
-
-		@SuppressWarnings("unused")
-		public RouteTripSpec addAllBothFrom(int directionId, String stopIdFrom) {
-			addBeforeAfterBoth(directionId, stopIdFrom + DASH + ALL);
-			this.allBeforeAfterStopIds.add(stopIdFrom);
-			return this;
-		}
-
-		@SuppressWarnings("unused")
-		public RouteTripSpec addAllBothTo(int directionId, String stopIdTo) {
-			addBeforeAfterBoth(directionId, ALL + DASH + stopIdTo);
-			this.allBeforeAfterStopIds.add(stopIdTo);
-			return this;
-		}
-
-		@SuppressWarnings("unused")
-		public RouteTripSpec addBothFromTo(int directionId, String stopIdFrom, String stopIdTo) {
-			addBeforeAfterBoth(directionId, stopIdFrom + DASH + stopIdTo);
-			this.allBeforeAfterStopIds.add(stopIdFrom);
-			this.allBeforeAfterStopIds.add(stopIdTo);
-			return this;
-		}
-
-		private void addBeforeAfterBoth(int directionId, String beforeAfterStopId) {
-			if (!this.beforeAfterBothStopIds.containsKey(directionId)) {
-				this.beforeAfterBothStopIds.put(directionId, new ArrayList<String>());
-			}
-			this.beforeAfterBothStopIds.get(directionId).add(beforeAfterStopId);
-		}
-	}
 }
