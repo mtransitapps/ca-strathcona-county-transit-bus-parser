@@ -87,15 +87,15 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public long getRouteId(GRoute gRoute) {
-		if (Utils.isDigitsOnly(gRoute.route_id)) {
-			return Long.parseLong(gRoute.route_id);
+		if (Utils.isDigitsOnly(gRoute.getRouteId())) {
+			return Long.parseLong(gRoute.getRouteId());
 		}
-		Matcher matcher = DIGITS.matcher(gRoute.route_id);
+		Matcher matcher = DIGITS.matcher(gRoute.getRouteId());
 		matcher.find();
 		long id = Long.parseLong(matcher.group());
-		if (gRoute.route_id.endsWith(A)) {
+		if (gRoute.getRouteId().endsWith(A)) {
 			return RID_EW_A + id;
-		} else if (gRoute.route_id.endsWith(B)) {
+		} else if (gRoute.getRouteId().endsWith(B)) {
 			return RID_EW_B + id;
 		}
 		System.out.println("Unexpected route ID " + gRoute);
@@ -160,13 +160,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public String getRouteLongName(GRoute gRoute) {
-		if (!Utils.isDigitsOnly(gRoute.route_short_name)) {
+		if (!Utils.isDigitsOnly(gRoute.getRouteShortName())) {
 			// @formatter:off
-			if (RSN_433A.equals(gRoute.route_short_name)) { return RLN_433A;
-			} else if (RSN_443A.equals(gRoute.route_short_name)) { return RLN_443A;
-			} else if (RSN_443B.equals(gRoute.route_short_name)) { return RLN_443B;
-			} else if (RSN_451A.equals(gRoute.route_short_name)) { return RLN_451A;
-			} else if (RSN_451B.equals(gRoute.route_short_name)) { return RLN_451B;
+			if (RSN_433A.equals(gRoute.getRouteShortName())) { return RLN_433A;
+			} else if (RSN_443A.equals(gRoute.getRouteShortName())) { return RLN_443A;
+			} else if (RSN_443B.equals(gRoute.getRouteShortName())) { return RLN_443B;
+			} else if (RSN_451A.equals(gRoute.getRouteShortName())) { return RLN_451A;
+			} else if (RSN_451B.equals(gRoute.getRouteShortName())) { return RLN_451B;
 			// @formatter:on
 			} else {
 				System.out.println("Unexpected route long name " + gRoute);
@@ -174,7 +174,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				return null;
 			}
 		}
-		int rsn = Integer.parseInt(gRoute.route_short_name);
+		int rsn = Integer.parseInt(gRoute.getRouteShortName());
 		switch (rsn) {
 		// @formatter:off
 		case 401: return RLN_401;
@@ -252,13 +252,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public String getRouteColor(GRoute gRoute) {
-		if (!Utils.isDigitsOnly(gRoute.route_short_name)) {
+		if (!Utils.isDigitsOnly(gRoute.getRouteShortName())) {
 			// @formatter:off
-			if (RSN_433A.equals(gRoute.route_short_name)) { return COLOR_ED0E58;
-			} else if (RSN_443A.equals(gRoute.route_short_name)) { return COLOR_231F20;
-			} else if (RSN_443B.equals(gRoute.route_short_name)) { return COLOR_00A34E;
-			} else if (RSN_451A.equals(gRoute.route_short_name)) { return COLOR_6E6EAB;
-			} else if (RSN_451B.equals(gRoute.route_short_name)) { return COLOR_D04CAE;
+			if (RSN_433A.equals(gRoute.getRouteShortName())) { return COLOR_ED0E58;
+			} else if (RSN_443A.equals(gRoute.getRouteShortName())) { return COLOR_231F20;
+			} else if (RSN_443B.equals(gRoute.getRouteShortName())) { return COLOR_00A34E;
+			} else if (RSN_451A.equals(gRoute.getRouteShortName())) { return COLOR_6E6EAB;
+			} else if (RSN_451B.equals(gRoute.getRouteShortName())) { return COLOR_D04CAE;
 			// @formatter:on
 			} else {
 				System.out.println("Unexpected route color " + gRoute);
@@ -266,7 +266,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				return null;
 			}
 		}
-		int rsn = Integer.parseInt(gRoute.route_short_name);
+		int rsn = Integer.parseInt(gRoute.getRouteShortName());
 		switch (rsn) {
 		// @formatter:off
 		case 401: return COLOR_F78F20;
@@ -306,77 +306,77 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 			return; // split
 		}
 		if (mRoute.id == 443l + RID_EW_A) { // 443A
-			if (gTrip.trip_headsign.equals("AM") || gTrip.trip_headsign.equals("START")) {
+			if (gTrip.getTripHeadsign().equals("AM") || gTrip.getTripHeadsign().equals("START")) {
 				mTrip.setHeadsignString("AM", 0);
 				return;
-			} else if (gTrip.trip_headsign.equals("PM") || gTrip.trip_headsign.equals("End")) {
+			} else if (gTrip.getTripHeadsign().equals("PM") || gTrip.getTripHeadsign().equals("End")) {
 				mTrip.setHeadsignString("PM", 1);
 				return;
 			}
 			System.out.printf("Unexpected trip (route ID: %s): %s\n", mRoute.id, gTrip);
 			System.exit(-1);
 		} else if (mRoute.id == 490l) {
-			if (gTrip.trip_headsign.equals("FULL")) {
+			if (gTrip.getTripHeadsign().equals("FULL")) {
 				mTrip.setHeadsignString(ABJ, 0);
 				return;
-			} else if (gTrip.trip_headsign.equals("LAST")) {
+			} else if (gTrip.getTripHeadsign().equals("LAST")) {
 				mTrip.setHeadsignString("Streambank Ave", 1);
 				return;
 			}
 			System.out.printf("Unexpected trip (route ID: %s): %s\n", mRoute.id, gTrip);
 			System.exit(-1);
 		} else if (mRoute.id == 491l) {
-			if (gTrip.trip_headsign.equals("FULL")) {
+			if (gTrip.getTripHeadsign().equals("FULL")) {
 				mTrip.setHeadsignString("Davidson Dr & Darlington Dr", 0);
 				return;
-			} else if (gTrip.trip_headsign.equals("LAST")) {
+			} else if (gTrip.getTripHeadsign().equals("LAST")) {
 				mTrip.setHeadsignString("Streambank Ave", 1);
 				return;
 			}
 			System.out.printf("Unexpected trip (route ID: %s): %s\n", mRoute.id, gTrip);
 			System.exit(-1);
 		} else if (mRoute.id == 492l) {
-			if (gTrip.trip_headsign.equals("FULL")) {
+			if (gTrip.getTripHeadsign().equals("FULL")) {
 				mTrip.setHeadsignString("Highland Wy / Heritage Dr", 0);
 				return;
-			} else if (gTrip.trip_headsign.equals("LAST")) {
+			} else if (gTrip.getTripHeadsign().equals("LAST")) {
 				mTrip.setHeadsignString("Streambank Ave", 1);
 				return;
 			}
 			System.out.printf("Unexpected trip (route ID: %s): %s\n", mRoute.id, gTrip);
 			System.exit(-1);
 		} else if (mRoute.id == 493l) {
-			if (gTrip.trip_headsign.equals("FULL")) {
+			if (gTrip.getTripHeadsign().equals("FULL")) {
 				mTrip.setHeadsignString("Oak St / Sherwood Dr", 0);
 				return;
-			} else if (gTrip.trip_headsign.equals("LAST")) {
+			} else if (gTrip.getTripHeadsign().equals("LAST")) {
 				mTrip.setHeadsignString("Streambank Ave", 1);
 				return;
 			}
 			System.out.printf("Unexpected trip (route ID: %s): %s\n", mRoute.id, gTrip);
 			System.exit(-1);
 		} else if (mRoute.id == 494l) {
-			if (gTrip.trip_headsign.equals("FULL")) {
+			if (gTrip.getTripHeadsign().equals("FULL")) {
 				mTrip.setHeadsignString(TC, 0);
 				return;
-			} else if (gTrip.trip_headsign.equals("LAST")) {
+			} else if (gTrip.getTripHeadsign().equals("LAST")) {
 				mTrip.setHeadsignString("Streambank Ave", 1);
 				return;
 			}
 			System.out.printf("Unexpected trip (route ID: %s): %s\n", mRoute.id, gTrip);
 			System.exit(-1);
 		} else if (mRoute.id == 495l) {
-			if (gTrip.trip_headsign.equals("FULL")) {
+			if (gTrip.getTripHeadsign().equals("FULL")) {
 				mTrip.setHeadsignString("Sherwood Dr / Oak St", 0);
 				return;
-			} else if (gTrip.trip_headsign.equals("LAST")) {
+			} else if (gTrip.getTripHeadsign().equals("LAST")) {
 				mTrip.setHeadsignString("Streambank Ave", 1);
 				return;
 			}
 			System.out.printf("Unexpected trip (route ID: %s): %s\n", mRoute.id, gTrip);
 			System.exit(-1);
 		}
-		mTrip.setHeadsignString(cleanTripHeadsign(gTrip.trip_headsign), gTrip.direction_id);
+		mTrip.setHeadsignString(cleanTripHeadsign(gTrip.getTripHeadsign()), gTrip.getDirectionId());
 	}
 
 	@Override
@@ -553,15 +553,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	@Override
 	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, ArrayList<MTrip> splitTrips, GSpec routeGTFS) {
 		if (ALL_ROUTE_TRIPS.containsKey(mRoute.id)) {
-			RouteTripSpec rts = ALL_ROUTE_TRIPS.get(mRoute.id);
-			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, //
-					rts.getBeforeAfterStopIds(0), //
-					rts.getBeforeAfterStopIds(1), //
-					rts.getBeforeAfterBothStopIds(0), //
-					rts.getBeforeAfterBothStopIds(1), //
-					rts.getTripId(0), //
-					rts.getTripId(1), //
-					rts.getAllBeforeAfterStopIds());
+			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, ALL_ROUTE_TRIPS.get(mRoute.id));
 		}
 		return super.splitTripStop(mRoute, gTrip, gTripStop, splitTrips, routeGTFS);
 	}
