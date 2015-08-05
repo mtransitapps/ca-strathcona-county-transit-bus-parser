@@ -305,67 +305,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		if (ALL_ROUTE_TRIPS.containsKey(mRoute.id)) {
 			return; // split
 		}
-		if (mRoute.id == 443l + RID_EW_A) { // 443A
-			if (gTrip.getTripHeadsign().equals("AM") || gTrip.getTripHeadsign().equals("START")) {
-				mTrip.setHeadsignString("AM", 0);
-				return;
-			} else if (gTrip.getTripHeadsign().equals("PM") || gTrip.getTripHeadsign().equals("End")) {
-				mTrip.setHeadsignString("PM", 1);
-				return;
-			}
-			System.out.printf("Unexpected trip (route ID: %s): %s\n", mRoute.id, gTrip);
-			System.exit(-1);
-		} else if (mRoute.id == 490l) {
-			if (gTrip.getTripHeadsign().equals("FULL")) {
-				mTrip.setHeadsignString(ABJ, 0);
-				return;
-			} else if (gTrip.getTripHeadsign().equals("LAST")) {
-				mTrip.setHeadsignString("Streambank Ave", 1);
-				return;
-			}
-			System.out.printf("Unexpected trip (route ID: %s): %s\n", mRoute.id, gTrip);
-			System.exit(-1);
-		} else if (mRoute.id == 491l) {
-			if (gTrip.getTripHeadsign().equals("FULL")) {
-				mTrip.setHeadsignString("Davidson Dr & Darlington Dr", 0);
-				return;
-			} else if (gTrip.getTripHeadsign().equals("LAST")) {
-				mTrip.setHeadsignString("Streambank Ave", 1);
-				return;
-			}
-			System.out.printf("Unexpected trip (route ID: %s): %s\n", mRoute.id, gTrip);
-			System.exit(-1);
-		} else if (mRoute.id == 492l) {
-			if (gTrip.getTripHeadsign().equals("FULL")) {
-				mTrip.setHeadsignString("Highland Wy / Heritage Dr", 0);
-				return;
-			} else if (gTrip.getTripHeadsign().equals("LAST")) {
-				mTrip.setHeadsignString("Streambank Ave", 1);
-				return;
-			}
-			System.out.printf("Unexpected trip (route ID: %s): %s\n", mRoute.id, gTrip);
-			System.exit(-1);
-		} else if (mRoute.id == 493l) {
-			if (gTrip.getTripHeadsign().equals("FULL")) {
-				mTrip.setHeadsignString("Oak St / Sherwood Dr", 0);
-				return;
-			} else if (gTrip.getTripHeadsign().equals("LAST")) {
-				mTrip.setHeadsignString("Streambank Ave", 1);
-				return;
-			}
-			System.out.printf("Unexpected trip (route ID: %s): %s\n", mRoute.id, gTrip);
-			System.exit(-1);
-		} else if (mRoute.id == 494l) {
-			if (gTrip.getTripHeadsign().equals("FULL")) {
-				mTrip.setHeadsignString(TC, 0);
-				return;
-			} else if (gTrip.getTripHeadsign().equals("LAST")) {
-				mTrip.setHeadsignString("Streambank Ave", 1);
-				return;
-			}
-			System.out.printf("Unexpected trip (route ID: %s): %s\n", mRoute.id, gTrip);
-			System.exit(-1);
-		} else if (mRoute.id == 495l) {
+		if (mRoute.id == 495l) {
 			if (gTrip.getTripHeadsign().equals("FULL")) {
 				mTrip.setHeadsignString("Sherwood Dr / Oak St", 0);
 				return;
@@ -373,7 +313,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				mTrip.setHeadsignString("Streambank Ave", 1);
 				return;
 			}
-			System.out.printf("Unexpected trip (route ID: %s): %s\n", mRoute.id, gTrip);
+			System.out.printf("\n%s: Unexpected trip: %s\n", mRoute.id, gTrip);
 			System.exit(-1);
 		}
 		mTrip.setHeadsignString(cleanTripHeadsign(gTrip.getTripHeadsign()), gTrip.getDirectionId());
