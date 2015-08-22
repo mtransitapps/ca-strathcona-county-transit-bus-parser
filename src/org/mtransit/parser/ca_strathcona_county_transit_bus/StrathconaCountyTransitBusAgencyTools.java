@@ -16,6 +16,7 @@ import org.mtransit.parser.gtfs.data.GCalendar;
 import org.mtransit.parser.gtfs.data.GCalendarDate;
 import org.mtransit.parser.gtfs.data.GRoute;
 import org.mtransit.parser.gtfs.data.GSpec;
+import org.mtransit.parser.gtfs.data.GStop;
 import org.mtransit.parser.gtfs.data.GTrip;
 import org.mtransit.parser.gtfs.data.GTripStop;
 import org.mtransit.parser.mt.data.MAgency;
@@ -103,8 +104,8 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		return -1l;
 	}
 
-	private static final String BTT = "Bethel TT";
-	private static final String TC = "Ordze TC";
+	private static final String BETHEL_TT = "Bethel TT";
+	private static final String ORDZE_TC = "Ordze TC";
 	private static final String DAB = "Dial-A-Bus";
 	private static final String EDM_CITY_CTR = "Edm City Ctr";
 	private static final String GOV_CTR = "Gov Ctr";
@@ -129,28 +130,28 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	private static final String BROADMOOR = "Broadmoor";
 	private static final String CITP = "Ctr in the Park";
 
-	private static final String RLN_401 = TC + " - " + EDM_CITY_CTR;
-	private static final String RLN_403 = TC + " - " + GOV_CTR;
-	private static final String RLN_404 = TC + " - " + U_OF_ALBERTA;
-	private static final String RLN_411 = BTT + " - " + EDM_CITY_CTR;
-	private static final String RLN_413 = BTT + " - " + GOV_CTR_NAIT;
-	private static final String RLN_414 = BTT + " - " + U_OF_ALBERTA;
-	private static final String RLN_420 = BTT + " - " + MILLENNIUM_PLACE;
-	private static final String RLN_430 = BTT + " - " + EMERALD_HILLS + " CW";
-	private static final String RLN_431 = BTT + " - " + EMERALD_HILLS + " CCW";
-	private static final String RLN_432 = BTT + " -" + SUMMERWOOD;
-	private static final String RLN_433 = BTT + " - " + CLARKDALE;
+	private static final String RLN_401 = ORDZE_TC + " - " + EDM_CITY_CTR;
+	private static final String RLN_403 = ORDZE_TC + " - " + GOV_CTR;
+	private static final String RLN_404 = ORDZE_TC + " - " + U_OF_ALBERTA;
+	private static final String RLN_411 = BETHEL_TT + " - " + EDM_CITY_CTR;
+	private static final String RLN_413 = BETHEL_TT + " - " + GOV_CTR_NAIT;
+	private static final String RLN_414 = BETHEL_TT + " - " + U_OF_ALBERTA;
+	private static final String RLN_420 = BETHEL_TT + " - " + MILLENNIUM_PLACE;
+	private static final String RLN_430 = BETHEL_TT + " - " + EMERALD_HILLS + " CW";
+	private static final String RLN_431 = BETHEL_TT + " - " + EMERALD_HILLS + " CCW";
+	private static final String RLN_432 = BETHEL_TT + " -" + SUMMERWOOD;
+	private static final String RLN_433 = BETHEL_TT + " - " + CLARKDALE;
 	private static final String RLN_433A = CLARKDALE + " - " + ABJ;
-	private static final String RLN_440 = BTT + " - " + HERITAGE_HILLS;
-	private static final String RLN_441 = BTT + " - " + TC + " - Regency";
-	private static final String RLN_442 = BTT + " - " + NOTTINGHAM;
-	private static final String RLN_443 = BTT + " - " + TC + " - Glen Allan";
-	private static final String RLN_443A = BTT + " - " + BRENTWOOD;
-	private static final String RLN_443B = BTT + " - " + GLEN_ALLAN;
-	private static final String RLN_450 = BTT + " - " + CITP;
-	private static final String RLN_451 = BTT + " - " + TC + " - Mills Haven / Westboro";
-	private static final String RLN_451A = BTT + " - Woodbridge";
-	private static final String RLN_451B = BTT + " - Mills Haven";
+	private static final String RLN_440 = BETHEL_TT + " - " + HERITAGE_HILLS;
+	private static final String RLN_441 = BETHEL_TT + " - " + ORDZE_TC + " - Regency";
+	private static final String RLN_442 = BETHEL_TT + " - " + NOTTINGHAM;
+	private static final String RLN_443 = BETHEL_TT + " - " + ORDZE_TC + " - Glen Allan";
+	private static final String RLN_443A = BETHEL_TT + " - " + BRENTWOOD;
+	private static final String RLN_443B = BETHEL_TT + " - " + GLEN_ALLAN;
+	private static final String RLN_450 = BETHEL_TT + " - " + CITP;
+	private static final String RLN_451 = BETHEL_TT + " - " + ORDZE_TC + " - Mills Haven / Westboro";
+	private static final String RLN_451A = BETHEL_TT + " - Woodbridge";
+	private static final String RLN_451B = BETHEL_TT + " - Mills Haven";
 	private static final String RLN_490 = DAB + " A";
 	private static final String RLN_491 = DAB + " B";
 	private static final String RLN_492 = DAB + " C";
@@ -305,7 +306,14 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		if (ALL_ROUTE_TRIPS.containsKey(mRoute.id)) {
 			return; // split
 		}
-		if (mRoute.id == 495l) {
+		if (mRoute.id == 443l + RID_EW_A) {
+			if (gTrip.getDirectionId() == 0) {
+				mTrip.setHeadsignString(BETHEL_TT, 0);
+				return;
+			}
+			System.out.printf("\n%s: Unexpected trip: %s\n", mRoute.id, gTrip);
+			System.exit(-1);
+		} else if (mRoute.id == 495l) {
 			if (gTrip.getTripHeadsign().equals("FULL")) {
 				mTrip.setHeadsignString("Sherwood Dr / Oak St", 0);
 				return;
@@ -319,8 +327,15 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		mTrip.setHeadsignString(cleanTripHeadsign(gTrip.getTripHeadsign()), gTrip.getDirectionId());
 	}
 
+	private static final Pattern TRANSIT_TERMINAL = Pattern.compile("(transit terminal)", Pattern.CASE_INSENSITIVE);
+	private static final String TRANSIT_TERMINAL_REPLACEMENT = "TT";
+	private static final Pattern TRANSIT_CENTER = Pattern.compile("(transit (center|centre))", Pattern.CASE_INSENSITIVE);
+	private static final String TRANSIT_CENTER_REPLACEMENT = "TC";
+
 	@Override
 	public String cleanTripHeadsign(String tripHeadsign) {
+		tripHeadsign = TRANSIT_TERMINAL.matcher(tripHeadsign).replaceAll(TRANSIT_TERMINAL_REPLACEMENT);
+		tripHeadsign = TRANSIT_CENTER.matcher(tripHeadsign).replaceAll(TRANSIT_CENTER_REPLACEMENT);
 		tripHeadsign = CleanUtils.cleanStreetTypes(tripHeadsign);
 		return CleanUtils.cleanLabel(tripHeadsign);
 	}
@@ -354,67 +369,67 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	static {
 		HashMap<Long, RouteTripSpec> map = new HashMap<Long, RouteTripSpec>();
 		map.put(401l, new RouteTripSpec(401l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, TC, //
+				0, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC, //
 				1, MTrip.HEADSIGN_TYPE_STRING, EDM_CITY_CTR) //
 				.addALLFromTo(0, STOP_ID_1832, STOP_ID_4000) //
 				.addALLFromTo(1, STOP_ID_4000, STOP_ID_1832) //
 		);
 		map.put(403l, new RouteTripSpec(403l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, TC, //
+				0, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC, //
 				1, MTrip.HEADSIGN_TYPE_STRING, EDM_CITY_CTR) //
 				.addALLFromTo(0, STOP_ID_1732, STOP_ID_4000) //
 				.addALLFromTo(1, STOP_ID_4000, STOP_ID_1973) //
 		);
 		map.put(404l, new RouteTripSpec(404l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, TC, //
+				0, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC, //
 				1, MTrip.HEADSIGN_TYPE_STRING, U_OF_ALBERTA) //
 				.addALLFromTo(0, STOP_ID_2636, STOP_ID_4000) //
 				.addALLFromTo(1, STOP_ID_4000, STOP_ID_2636) //
 		);
 		map.put(411l, new RouteTripSpec(411l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, EDM_CITY_CTR) //
 				.addALLFromTo(0, STOP_ID_1973, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_1973) //
 		);
 		map.put(413l, new RouteTripSpec(413l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, NAIT_GOV_CTR) //
 				.addALLFromTo(0, STOP_ID_1223, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_1227) //
 		);
 		map.put(414l, new RouteTripSpec(414l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, U_OF_ALBERTA) //
 				.addALLFromTo(0, STOP_ID_2636, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_2636) //
 		);
 		map.put(420l, new RouteTripSpec(420l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, STRATHMOOR_DRIVE) //
 				.addALLFromTo(0, STOP_ID_8811, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_8810) //
 		);
 		map.put(430l, new RouteTripSpec(430l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, EMERALD_HILLS_ABJ) //
 				.addALLFromTo(0, STOP_ID_7921, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_7921) //
 		);
 		map.put(431l, new RouteTripSpec(431l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, EMERALD_HILLS_ABJ) //
 				.addALLFromTo(0, STOP_ID_7920, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_7920) //
 		);
 		map.put(432l, new RouteTripSpec(432l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, SUMMERWOOD) //
 				.addALLFromTo(0, STOP_ID_7508, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_7508) //
 		);
 		map.put(433l, new RouteTripSpec(433l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, SUMMERWOOD) //
 				.addALLFromTo(0, STOP_ID_7317, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_7317) //
@@ -426,55 +441,55 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				.addALLFromTo(1, STOP_ID_8113, STOP_ID_7920) //
 		);
 		map.put(440l, new RouteTripSpec(440l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, HERITAGE_HILLS) //
 				.addALLFromTo(0, STOP_ID_7199, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_7199) //
 		);
 		map.put(441l, new RouteTripSpec(441l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
-				1, MTrip.HEADSIGN_TYPE_STRING, TC) //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
+				1, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC) //
 				.addALLFromTo(0, STOP_ID_4000, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_4000) //
 		);
 		map.put(442l, new RouteTripSpec(442l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, NOTTINGHAM) //
 				.addALLFromTo(0, STOP_ID_9015, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_9015) //
 		);
 		map.put(443l, new RouteTripSpec(443l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
-				1, MTrip.HEADSIGN_TYPE_STRING, TC) //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
+				1, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC) //
 				.addALLFromTo(0, STOP_ID_4000, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_4000) //
 		);
 		map.put(443l + RID_EW_B, new RouteTripSpec(443l + RID_EW_B, // 443B
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, OAK_ST) //
 				.addALLFromTo(0, STOP_ID_6048, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_6029) //
 		);
 		map.put(450l, new RouteTripSpec(450l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, CITP) //
 				.addALLFromTo(0, STOP_ID_2001, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_2001) //
 		);
 		map.put(451l, new RouteTripSpec(451l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
-				1, MTrip.HEADSIGN_TYPE_STRING, TC) //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
+				1, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC) //
 				.addALLFromTo(0, STOP_ID_4000, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_4000) //
 		);
 		map.put(451l + RID_EW_A, new RouteTripSpec(451l + RID_EW_A, // 451A
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, VILLAGE) //
 				.addALLFromTo(0, STOP_ID_5040, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_5115) //
 		);
 		map.put(451l + RID_EW_B, new RouteTripSpec(451l + RID_EW_B, // 451B
-				0, MTrip.HEADSIGN_TYPE_STRING, BTT, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, BROADMOOR) //
 				.addALLFromTo(0, STOP_ID_5041, STOP_ID_8000) //
 				.addALLFromTo(1, STOP_ID_8000, STOP_ID_5041) //
@@ -515,4 +530,11 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		return CleanUtils.cleanLabel(gStopName);
 	}
 
+	@Override
+	public String getStopCode(GStop gStop) {
+		if ("0".equals(gStop.getStopCode())) {
+			return null;
+		}
+		return super.getStopCode(gStop);
+	}
 }
