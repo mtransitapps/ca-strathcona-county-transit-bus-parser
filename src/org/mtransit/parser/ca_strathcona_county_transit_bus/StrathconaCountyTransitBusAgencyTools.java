@@ -24,8 +24,9 @@ import org.mtransit.parser.mt.data.MRoute;
 import org.mtransit.parser.mt.data.MTrip;
 
 // https://data.strathcona.ca/
-// https://data.strathcona.ca/Transportation/Strathcona-County-Transit-Bus-Schedule-GFTS-Data-F/cvta-prr6
-// https://data.strathcona.ca/download/cvta-prr6/application/zip
+// https://data.strathcona.ca/Transportation/Strathcona-County-Transit-Bus-Schedule-GTFS-Data-F/2ek5-rxs5
+// https://data.strathcona.ca/download/2ek5-rxs5/ZIP
+// http://webpub2.strathcona.ab.ca/GTFS/Google_Transit.zip
 public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	public static void main(String[] args) {
