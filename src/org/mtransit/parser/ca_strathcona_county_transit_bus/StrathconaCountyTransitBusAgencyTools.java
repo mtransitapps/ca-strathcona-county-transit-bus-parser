@@ -304,17 +304,17 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public void setTripHeadsign(MRoute mRoute, MTrip mTrip, GTrip gTrip, GSpec gtfs) {
-		if (ALL_ROUTE_TRIPS.containsKey(mRoute.id)) {
+		if (ALL_ROUTE_TRIPS.containsKey(mRoute.getId())) {
 			return; // split
 		}
-		if (mRoute.id == 443l + RID_EW_A) {
+		if (mRoute.getId() == 443l + RID_EW_A) {
 			if (gTrip.getDirectionId() == 0) {
 				mTrip.setHeadsignString(BETHEL_TT, 0);
 				return;
 			}
-			System.out.printf("\n%s: Unexpected trip: %s\n", mRoute.id, gTrip);
+			System.out.printf("\n%s: Unexpected trip: %s\n", mRoute.getId(), gTrip);
 			System.exit(-1);
-		} else if (mRoute.id == 495l) {
+		} else if (mRoute.getId() == 495l) {
 			if (gTrip.getTripHeadsign().equals("FULL")) {
 				mTrip.setHeadsignString("Sherwood Dr / Oak St", 0);
 				return;
@@ -322,7 +322,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				mTrip.setHeadsignString("Streambank Ave", 1);
 				return;
 			}
-			System.out.printf("\n%s: Unexpected trip: %s\n", mRoute.id, gTrip);
+			System.out.printf("\n%s: Unexpected trip: %s\n", mRoute.getId(), gTrip);
 			System.exit(-1);
 		}
 		mTrip.setHeadsignString(cleanTripHeadsign(gTrip.getTripHeadsign()), gTrip.getDirectionId());
@@ -500,32 +500,25 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public ArrayList<MTrip> splitTrip(MRoute mRoute, GTrip gTrip, GSpec gtfs) {
-		if (ALL_ROUTE_TRIPS.containsKey(mRoute.id)) {
-			return ALL_ROUTE_TRIPS.get(mRoute.id).getAllTrips();
+		if (ALL_ROUTE_TRIPS.containsKey(mRoute.getId())) {
+			return ALL_ROUTE_TRIPS.get(mRoute.getId()).getAllTrips();
 		}
 		return super.splitTrip(mRoute, gTrip, gtfs);
 	}
 
 	@Override
 	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, ArrayList<MTrip> splitTrips, GSpec routeGTFS) {
-		if (ALL_ROUTE_TRIPS.containsKey(mRoute.id)) {
-			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, ALL_ROUTE_TRIPS.get(mRoute.id));
+		if (ALL_ROUTE_TRIPS.containsKey(mRoute.getId())) {
+			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, ALL_ROUTE_TRIPS.get(mRoute.getId()));
 		}
 		return super.splitTripStop(mRoute, gTrip, gTripStop, splitTrips, routeGTFS);
 	}
 
 
-
-	private static final Pattern AND = Pattern.compile("( and )", Pattern.CASE_INSENSITIVE);
-	private static final String AND_REPLACEMENT = " & ";
-
-	private static final Pattern AT = Pattern.compile("( at )", Pattern.CASE_INSENSITIVE);
-	private static final String AT_REPLACEMENT = " / ";
-
 	@Override
 	public String cleanStopName(String gStopName) {
-		gStopName = AT.matcher(gStopName).replaceAll(AT_REPLACEMENT);
-		gStopName = AND.matcher(gStopName).replaceAll(AND_REPLACEMENT);
+		gStopName = CleanUtils.CLEAN_AT.matcher(gStopName).replaceAll(CleanUtils.CLEAN_AT_REPLACEMENT);
+		gStopName = CleanUtils.CLEAN_AND.matcher(gStopName).replaceAll(CleanUtils.CLEAN_AND_REPLACEMENT);
 		gStopName = CleanUtils.cleanStreetTypes(gStopName);
 		gStopName = CleanUtils.cleanNumbers(gStopName);
 		return CleanUtils.cleanLabel(gStopName);
