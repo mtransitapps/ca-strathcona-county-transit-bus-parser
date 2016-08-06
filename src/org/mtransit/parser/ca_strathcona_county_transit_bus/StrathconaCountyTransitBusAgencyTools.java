@@ -100,7 +100,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		} else if (gRoute.getRouteId().endsWith(B)) {
 			return RID_EW_B + id;
 		}
-		System.out.println("Unexpected route ID " + gRoute);
+		System.out.printf("\nUnexpected route ID %s!\n", gRoute);
 		System.exit(-1);
 		return -1l;
 	}
@@ -142,6 +142,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	private static final String RLN_431 = BETHEL_TT + " - " + EMERALD_HILLS + " CCW";
 	private static final String RLN_432 = BETHEL_TT + " -" + SUMMERWOOD;
 	private static final String RLN_433 = BETHEL_TT + " - " + CLARKDALE;
+	private static final String RLN_441A = BETHEL_TT + " - " + "Regency";
 	private static final String RLN_433A = CLARKDALE + " - " + ABJ;
 	private static final String RLN_440 = BETHEL_TT + " - " + HERITAGE_HILLS;
 	private static final String RLN_441 = BETHEL_TT + " - " + ORDZE_TC + " - Regency";
@@ -164,14 +165,15 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	public String getRouteLongName(GRoute gRoute) {
 		if (!Utils.isDigitsOnly(gRoute.getRouteShortName())) {
 			// @formatter:off
-			if (RSN_433A.equals(gRoute.getRouteShortName())) { return RLN_433A;
+			if (RSN_441A.equals(gRoute.getRouteShortName())) { return RLN_441A;
+			} else if (RSN_433A.equals(gRoute.getRouteShortName())) { return RLN_433A;
 			} else if (RSN_443A.equals(gRoute.getRouteShortName())) { return RLN_443A;
 			} else if (RSN_443B.equals(gRoute.getRouteShortName())) { return RLN_443B;
 			} else if (RSN_451A.equals(gRoute.getRouteShortName())) { return RLN_451A;
 			} else if (RSN_451B.equals(gRoute.getRouteShortName())) { return RLN_451B;
 			// @formatter:on
 			} else {
-				System.out.println("Unexpected route long name " + gRoute);
+				System.out.printf("\nUnexpected route long name %s!\n", gRoute);
 				System.exit(-1);
 				return null;
 			}
@@ -204,7 +206,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		case 495: return RLN_495;
 		// @formatter:on
 		default:
-			System.out.println("Unexpected route long name " + gRoute);
+			System.out.printf("\nUnexpected route long name %s!\n", gRoute);
 			System.exit(-1);
 			return null;
 		}
@@ -219,6 +221,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		return AGENCY_COLOR;
 	}
 
+	private static final String RSN_441A = "441A";
 	private static final String RSN_433A = "433A";
 	private static final String RSN_443A = "443A";
 	private static final String RSN_443B = "443B";
@@ -256,14 +259,15 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	public String getRouteColor(GRoute gRoute) {
 		if (!Utils.isDigitsOnly(gRoute.getRouteShortName())) {
 			// @formatter:off
-			if (RSN_433A.equals(gRoute.getRouteShortName())) { return COLOR_ED0E58;
+			if (RSN_441A.equals(gRoute.getRouteShortName())) { return COLOR_832B30;
+			} else if (RSN_433A.equals(gRoute.getRouteShortName())) { return COLOR_ED0E58;
 			} else if (RSN_443A.equals(gRoute.getRouteShortName())) { return COLOR_231F20;
 			} else if (RSN_443B.equals(gRoute.getRouteShortName())) { return COLOR_00A34E;
 			} else if (RSN_451A.equals(gRoute.getRouteShortName())) { return COLOR_6E6EAB;
 			} else if (RSN_451B.equals(gRoute.getRouteShortName())) { return COLOR_D04CAE;
 			// @formatter:on
 			} else {
-				System.out.println("Unexpected route color " + gRoute);
+				System.out.printf("\nUnexpected route color %s!\n", gRoute);
 				System.exit(-1);
 				return null;
 			}
@@ -296,7 +300,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		case 495: return null;
 		// @formatter:on
 		default:
-			System.out.println("Unexpected route color " + gRoute);
+			System.out.printf("\nUnexpected route color %s!\n", gRoute);
 			System.exit(-1);
 			return null;
 		}
