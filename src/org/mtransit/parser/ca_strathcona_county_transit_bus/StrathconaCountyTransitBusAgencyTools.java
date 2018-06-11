@@ -89,8 +89,8 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	private static final String A = "A";
 	private static final String B = "B";
 
-	private static final long RID_EW_A = 10000;
-	private static final long RID_EW_B = 20000;
+	private static final long RID_EW_A = 10_000L;
+	private static final long RID_EW_B = 20_000L;
 
 	@Override
 	public long getRouteId(GRoute gRoute) {
@@ -111,19 +111,21 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		return -1l;
 	}
 
-	private static final String BETHEL_TT = "Bethel TT";
+	private static final String SLASH = " / ";
+	private static final String BETHEL = "Bethel";
+	private static final String BETHEL_TT = BETHEL + " TT";
 	private static final String ORDZE_TC = "Ordze TC";
 	private static final String DOWNTOWN = "Downtown";
 	private static final String DAB = "Dial-A-Bus";
 	private static final String EDM_CITY_CTR = "Edm City Ctr";
 	private static final String GOV_CTR = "Gov Ctr";
 	private static final String NAIT = "NAIT";
-	private static final String GOV_CTR_NAIT = GOV_CTR + " / " + NAIT;
+	private static final String GOV_CTR_NAIT = GOV_CTR + SLASH + NAIT;
 	private static final String U_OF_ALBERTA = "U of Alberta";
 	private static final String MILLENNIUM_PLACE = "Millennium Pl";
 	private static final String EMERALD_HILLS = "Emerald Hls";
 	private static final String ABJ = "ABJ Sch";
-	private static final String EMERALD_HILLS_ABJ = EMERALD_HILLS + " / " + ABJ;
+	private static final String EMERALD_HILLS_ABJ = EMERALD_HILLS + SLASH + ABJ;
 	private static final String SUMMERWOOD = "Summerwood";
 	private static final String CLARKDALE = "Clarkdale";
 	private static final String HERITAGE_HILLS = "Heritage Hls";
@@ -133,6 +135,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	private static final String VILLAGE = "Village";
 	private static final String BROADMOOR = "Broadmoor";
 	private static final String CITP = "Ctr in the Park";
+	private static final String REGENCY = "Regency";
 
 	private static final String RLN_401 = ORDZE_TC + " - " + EDM_CITY_CTR;
 	private static final String RLN_403 = ORDZE_TC + " - " + GOV_CTR;
@@ -145,7 +148,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	private static final String RLN_431 = BETHEL_TT + " - " + EMERALD_HILLS + " CCW";
 	private static final String RLN_432 = BETHEL_TT + " -" + SUMMERWOOD;
 	private static final String RLN_433 = BETHEL_TT + " - " + CLARKDALE;
-	private static final String RLN_441A = BETHEL_TT + " - " + "Regency";
+	private static final String RLN_441A = BETHEL_TT + " - " + REGENCY;
 	private static final String RLN_433A = CLARKDALE + " - " + ABJ;
 	private static final String RLN_440 = BETHEL_TT + " - " + HERITAGE_HILLS;
 	private static final String RLN_441 = BETHEL_TT + " - " + ORDZE_TC + " - Regency";
@@ -587,7 +590,28 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 						"8000", // Bethel Transit Terminal
 								"9240", // Foxhaven Dr & Foxhaven Pl
 								"9115", // Ritchie Wy & Rainbow Cr
+								"4939", // Salisbury Way & Mitchell St
 								"4000", // Ordze Transit Centre
+						})) //
+				.compileBothTripSort());
+		map2.put(441L + RID_EW_A, new RouteTripSpec(441L + RID_EW_A, // 441A
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
+				1, MTrip.HEADSIGN_TYPE_STRING, REGENCY) //
+				.addTripSort(0, //
+						Arrays.asList(new String[] { //
+						"9115", // != Ritchie Wy & Rainbow Cr <=
+								"9157", // != Ritchie Wy & Regency Dr <=
+								"9239", // != Foxhaven Dr & Foxhaven Ct
+								"9160", // == Clover Bar Rd & Foxhaven Dr
+								"8000", // Bethel Transit Terminal
+						})) //
+				.addTripSort(1, //
+						Arrays.asList(new String[] { //
+						"8000", // Bethel Transit Terminal
+								"9150", // == Foxhaven Dr & Foxhaven Pl
+								"9240", // != Foxhaven Dr & Foxhaven Pl
+								"9115", // != Ritchie Wy & Rainbow Cr =>
+								"9157", // != Ritchie Wy & Regency Dr =>
 						})) //
 				.compileBothTripSort());
 		map2.put(442L, new RouteTripSpec(442L, //
@@ -726,13 +750,144 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"5041", // Kaska Rd Chippewa Rd
 						})) //
 				.compileBothTripSort());
+		map2.put(490L, new RouteTripSpec(490L, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
+				1, MTrip.HEADSIGN_TYPE_STRING, MILLENNIUM_PLACE) //
+				.addTripSort(0, //
+						Arrays.asList(new String[] { //
+						"8800", // == Premier Wy & Millennium Place
+								"8816", // != Streambank Av =>
+								"8806", // != Premier Wy & Prairie Dr CONTINUE
+								"7526", // Summerland Dr & Lakeland Dr
+								"8000", // Bethel Transit Terminal
+						})) //
+				.addTripSort(1, //
+						Arrays.asList(new String[] { //
+						"8000", // Bethel Transit Terminal
+								"8700", // ++
+								"8800", // == Premier Wy & Millennium Place
+						})) //
+				.compileBothTripSort());
+		map2.put(491L, new RouteTripSpec(491L, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
+				1, MTrip.HEADSIGN_TYPE_STRING, SUMMERWOOD) //
+				.addTripSort(0, //
+						Arrays.asList(new String[] { //
+						"7807", // Clover Bar Rd & Jubilee Dr
+								"7508", // Summerwood Blvd & Clover Bar Rd
+								"7406", // Davidson Dr & Darlington Dr
+								"7312", // Meadowview Dr & Clarkdale Dr
+								"7229", // Primrose Blvd & Clover Bar Rd
+								"8138", // Summerwood Blvd & Clover Bar Rd
+								"8000", // Bethel Transit Terminal
+						})) //
+				.addTripSort(1, //
+						Arrays.asList(new String[] { //
+						"8000", // == Bethel Transit Terminal
+								"8010", // != Broadway Blvd at Robin Hood
+								"8816", // != Streambank Av =>
+								"8101", // != Bethel Dr & Broadview Rd
+								"7604", // Jim Common Dr & Cache Pl
+								"7807", // Clover Bar Rd & Jubilee Dr
+						})) //
+				.compileBothTripSort());
+		map2.put(492L, new RouteTripSpec(492L, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
+				1, MTrip.HEADSIGN_TYPE_STRING, REGENCY) //
+				.addTripSort(0, //
+						Arrays.asList(new String[] { //
+						"9157", // Ritchie Wy & Regency Dr
+								"9225", // Regency Dr & Ridgeland Cr
+								"7199", // Highland Wy & Heritage Dr
+								"7011", // Craigavon Dr & Carmel Rd
+								"1042", // Galloway Dr & Glengarry Cr
+								"1052", // Georgian Wy
+								"1001", // Sherwood Dr & Granada Blvd
+								"8000", // Bethel Transit Terminal
+						})) //
+				.addTripSort(1, //
+						Arrays.asList(new String[] { //
+						"8000", // == Bethel Transit Terminal
+								"8010", // != Broadway Blvd at Robin Hood
+								"8816", // != Streambank Av =>
+								"8101", // != Broadway Blvd at Robin Hood
+								"1002", // Sherwood Dr & Oak St
+								"9015", // Nottingham Blvd & Nottingham Rd
+								"9157", // Ritchie Wy & Regency Dr
+						})) //
+				.compileBothTripSort());
+		map2.put(493L, new RouteTripSpec(493L, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
+				1, MTrip.HEADSIGN_TYPE_STRING, BRENTWOOD) //
+				.addTripSort(0, //
+						Arrays.asList(new String[] { //
+						"6097", // Alder Av & Alderwood Cr
+								"6115", // Alder Av & Ivy Cr
+								"6065", // Fir St & Willow St
+								"6048", // Oak St & Sherwood Dr
+								"1004", // Sherwood Dr & Oak St
+								"1090", // Galloway Dr & Glenbrook Blvd
+								"7006", // Glencoe Blvd & Courtenay By
+								"8111", // Sherwood Dr & Cranford Wy
+								"8000", // Bethel Transit Terminal
+						})) //
+				.addTripSort(1, //
+						Arrays.asList(new String[] { //
+						"8000", // == Bethel Transit Terminal
+								"8010", // != Broadway Blvd at Robin Hood
+								"8816", // != Streambank Av =>
+								"8101", // != Broadway Blvd at Robin Hood
+								"7011", // Fir St & Willow St
+								"1042", // Galloway Dr & Glengarry Cr
+								"1071", // Georgian Wy & Glenbrook Blvd
+								"2001", // Festival Ln & Festival Av
+								"6079", // Raven Dr & Crane Rd
+								"6091", // Heron Rd & Falcon Dr
+								"6097", // Alder Av & Alderwood Cr
+						})) //
+				.compileBothTripSort());
+		map2.put(494L, new RouteTripSpec(494L, //
+				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
+				1, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC) // Woodbridge
+				.addTripSort(0, //
+						Arrays.asList(new String[] { //
+						"4000", // Ordze Transit Centre
+								"6012", // Fir St & Willow St
+								"9353", // Clover Bar Rd & Wye Rd
+								"9180", // Granada Blvd & Forrest Dr
+								"1001", // Sherwood Dr & Granada Blvd
+								"1004", // != Sherwood Dr & Oak St
+								"5005", // <> Main Blvd & Mardale Cr
+								"5023", // <> Main Blvd & Marion Dr
+								"4036", // <> Broadmoor Blvd & Main Blvd
+								"8013", // != Broadview Rd & Broadmoor Blvd
+								"8000", // Bethel Transit Terminal
+						})) //
+				.addTripSort(1, //
+						Arrays.asList(new String[] { //
+						"8000", // == Bethel Transit Terminal
+								"8010", // != Broadway Blvd at Robin Hood
+								"8816", // != Streambank Av =>
+								"1013", // != Sherwood Dr & Baseline Rd
+								"1014", // != Sherwood Dr & Main Blvd
+								"5005", // <> Main Blvd & Mardale Cr
+								"5011", // != Main Blvd & Millers Rd
+								"5023", // <> Main Blvd & Marion Dr
+								"4036", // <> Broadmoor Blvd & Main Blvd
+								"5041", // != Kaska Rd Chippewa Rd
+								"5065", // Broadmoor Blvd & Sioux Rd
+								"5089", // Haythorne Rd & Haythorne Pl
+								"5115", // Village Dr & Village Dr
+								"4000", // Ordze Transit Centre
+						})) //
+				.compileBothTripSort());
 		ALL_ROUTE_TRIPS2 = map2;
 	}
 
 	@Override
 	public int compareEarly(long routeId, List<MTripStop> list1, List<MTripStop> list2, MTripStop ts1, MTripStop ts2, GStop ts1GStop, GStop ts2GStop) {
 		if (ALL_ROUTE_TRIPS2.containsKey(routeId)) {
-			return ALL_ROUTE_TRIPS2.get(routeId).compare(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop);
+			return ALL_ROUTE_TRIPS2.get(routeId).compare(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop, this);
 		}
 		return super.compareEarly(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop);
 	}
@@ -748,11 +903,10 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	@Override
 	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, ArrayList<MTrip> splitTrips, GSpec routeGTFS) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
-			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, ALL_ROUTE_TRIPS2.get(mRoute.getId()));
+			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, ALL_ROUTE_TRIPS2.get(mRoute.getId()), this);
 		}
 		return super.splitTripStop(mRoute, gTrip, gTripStop, splitTrips, routeGTFS);
 	}
-
 
 	@Override
 	public String cleanStopName(String gStopName) {
