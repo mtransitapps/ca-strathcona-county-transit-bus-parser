@@ -104,15 +104,15 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public long getRouteId(GRoute gRoute) {
-		if (Utils.isDigitsOnly(gRoute.getRouteId())) {
-			return Long.parseLong(gRoute.getRouteId());
+		if (Utils.isDigitsOnly(gRoute.getRouteShortName())) {
+			return Long.parseLong(gRoute.getRouteShortName());
 		}
-		Matcher matcher = DIGITS.matcher(gRoute.getRouteId());
+		Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
 		if (matcher.find()) {
 			long id = Long.parseLong(matcher.group());
-			if (gRoute.getRouteId().endsWith(A)) {
+			if (gRoute.getRouteShortName().endsWith(A)) {
 				return RID_EW_A + id;
-			} else if (gRoute.getRouteId().endsWith(B)) {
+			} else if (gRoute.getRouteShortName().endsWith(B)) {
 				return RID_EW_B + id;
 			}
 		}
@@ -526,7 +526,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				.addTripSort(1, //
 						Arrays.asList(new String[] { //
 						"8000", // Bethel Transit Terminal
-								"8112", // ++
+								"8304", // ++
 								"7870", // Lakeland Dr & Aspen Tr
 						})) //
 				.compileBothTripSort());
@@ -567,20 +567,17 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				1, MTrip.HEADSIGN_TYPE_STRING, HERITAGE_HILLS) //
 				.addTripSort(0, //
 						Arrays.asList(new String[] { //
-						"7199", // Highland Wy & Heritage Dr
+						"8000", // != xx Bethel Transit Terminal #WTF!
+								"7199", // Highland Wy & Heritage Dr
 								"7124", // == Highland Dr & Heritage Lake Wy
-								"7106", // !=
-								"7104", // !=
 								"7011", // !=
 								"1068", // !=
 								"7102", // ==
-								"8000", // Bethel Transit Terminal
+								"8000", // xx Bethel Transit Terminal
 						})) //
 				.addTripSort(1, //
 						Arrays.asList(new String[] { //
 						"8000", // == Bethel Transit Terminal
-								"7103", // !=
-								"7105", // !=
 								"1090", // !=
 								"7024", // !=
 								"7199", // == Highland Wy & Heritage Dr
@@ -658,25 +655,28 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 						})) //
 				.compileBothTripSort());
 		map2.put(443L + RID_EW_A, new RouteTripSpec(443L + RID_EW_A, // 443A
-				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
-				1, MTrip.HEADSIGN_TYPE_STRING, BRENTWOOD) // Sherwood Heights / Centre in the Park
+				0, MTrip.HEADSIGN_TYPE_STRING, "AM", //
+				1, MTrip.HEADSIGN_TYPE_STRING, "PM") //
 				.addTripSort(0, //
 						Arrays.asList(new String[] { //
-						"6035", // <> Oak St & Conifer St
-								"1009", // !=
-								"2000", // <> Festival Ln & Festival Av
-								"1001", // ==
-								"8000", // Bethel Transit Terminal
+						"8000", // xx Bethel Transit Terminal
+								"1013", // !=
+								"2001", //
+								"6035", // Oak St & Conifer St
+								"6126", //
+								"1009", //
+								"1011", // !=
+								"8000", // xx Bethel Transit Terminal
 						})) //
 				.addTripSort(1, //
 						Arrays.asList(new String[] { //
-						"8000", // Bethel Transit Terminal
-								"1002", // ==
-								"2001", // !=
-								"6035", // <> Oak St & Conifer St => Bethel TT
-								"6079", // !=
-								"6042", // !=
-								"2000", // <> Festival Ln & Festival Av => Bethel TT
+						"8000", // xx Bethel Transit Terminal
+								"1013", // !=
+								"6079", //
+								"6115", //
+								"2000", // Festival Ln & Festival Av
+								"1011", // !=
+								"8000", // xx Bethel Transit Terminal
 						})) //
 				.compileBothTripSort());
 		map2.put(443L + RID_EW_B, new RouteTripSpec(443L + RID_EW_B, // 443B
@@ -766,14 +766,18 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				.addTripSort(0, //
 						Arrays.asList(new String[] { //
 						"8800", // == Premier Wy & Millennium Place
-								"8816", // != Streambank Av =>
-								"8806", // != Premier Wy & Prairie Dr CONTINUE
+								"8806", // Premier Wy & Prairie Dr
+								"8812", // Strathmoor Dr
+								"8814", // Streambank Av
+								"8803", // Prairie Dr & Premier Wy
 								"7526", // Summerland Dr & Lakeland Dr
 								"8000", // Bethel Transit Terminal
 						})) //
 				.addTripSort(1, //
 						Arrays.asList(new String[] { //
 						"8000", // Bethel Transit Terminal
+								"8816", // != Streambank Av =>
+								"8010", // != Broadway Blvd at Robin Hood CONTINUE
 								"8700", // ++
 								"8800", // == Premier Wy & Millennium Place
 						})) //
