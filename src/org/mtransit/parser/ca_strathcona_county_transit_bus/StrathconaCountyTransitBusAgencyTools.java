@@ -94,8 +94,6 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		return MAgency.ROUTE_TYPE_BUS;
 	}
 
-	private static final Pattern DIGITS = Pattern.compile("[\\d]+");
-
 	private static final String A = "A";
 	private static final String B = "B";
 
@@ -929,6 +927,26 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		gStopName = CleanUtils.cleanStreetTypes(gStopName);
 		gStopName = CleanUtils.cleanNumbers(gStopName);
 		return CleanUtils.cleanLabel(gStopName);
+	}
+
+	private static final Pattern DIGITS = Pattern.compile("[\\d]+");
+
+	@Override
+	public int getStopId(GStop gStop) {
+		if (!Utils.isDigitsOnly(gStop.getStopId())) {
+			Matcher matcher = DIGITS.matcher(gStop.getStopId());
+			if (matcher.find()) {
+				int digits = Integer.parseInt(matcher.group());
+				String stopId = gStop.getStopId().toLowerCase(Locale.ENGLISH);
+				if (stopId.startsWith("s")) {
+					return 1_900_000 + digits;
+				}
+			}
+			System.out.printf("\nUnexptected stop ID for %s!\n", gStop);
+			System.exit(-1);
+			return -1;
+		}
+		return super.getStopId(gStop);
 	}
 
 	@Override
