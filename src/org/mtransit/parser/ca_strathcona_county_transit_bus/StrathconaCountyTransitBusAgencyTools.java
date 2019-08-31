@@ -417,6 +417,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				.addTripSort(0, //
 						Arrays.asList(new String[] { //
 						"1973", // 107 St & 104 Av
+								"1439", // 101 Street & 103A Avenue
 								"1292", // 100 St & 102A Av
 								"8000", // Bethel Transit Terminal
 						})) //
