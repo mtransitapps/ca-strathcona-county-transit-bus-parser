@@ -115,8 +115,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				return RID_EW_B + id;
 			}
 		}
-		MTLog.logFatal("Unexpected route ID %s!", gRoute);
-		return -1L;
+		throw new MTLog.Fatal("Unexpected route ID %s!", gRoute);
 	}
 
 	private static final String SLASH = " / ";
@@ -188,8 +187,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				} else if (RSN_451B.equals(gRoute.getRouteShortName())) { return RLN_451B;
 				// @formatter:on
 				} else {
-					MTLog.logFatal("Unexpected route long name %s!", gRoute);
-					return null;
+					throw new MTLog.Fatal("Unexpected route long name %s!", gRoute);
 				}
 			}
 			int rsn = Integer.parseInt(gRoute.getRouteShortName());
@@ -220,8 +218,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 			case 495: return RLN_495;
 			// @formatter:on
 			default:
-				MTLog.logFatal("Unexpected route long name %s!", gRoute);
-				return null;
+				throw new MTLog.Fatal("Unexpected route long name %s!", gRoute);
 			}
 		}
 		return cleanRouteLongName(gRoute);
@@ -263,8 +260,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 			} else if (RSN_451B.equals(gRoute.getRouteShortName())) { return "D04CAE";
 			// @formatter:on
 			} else {
-				MTLog.logFatal("Unexpected route color %s!", gRoute);
-				return null;
+				throw new MTLog.Fatal("Unexpected route color %s!", gRoute);
 			}
 		}
 		int rsn = Integer.parseInt(gRoute.getRouteShortName());
@@ -295,8 +291,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		case 495: return null;
 		// @formatter:on
 		default:
-			MTLog.logFatal("Unexpected route color %s!", gRoute);
-			return null;
+			throw new MTLog.Fatal("Unexpected route color %s!", gRoute);
 		}
 	}
 
@@ -310,8 +305,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public boolean mergeHeadsign(MTrip mTrip, MTrip mTripToMerge) {
-		MTLog.logFatal("Unexpected trips to merge: %s & %s!", mTrip, mTripToMerge);
-		return false;
+		throw new MTLog.Fatal("Unexpected trips to merge: %s & %s!", mTrip, mTripToMerge);
 	}
 
 	private static final Pattern TRANSIT_TERMINAL = Pattern.compile("(transit terminal)", Pattern.CASE_INSENSITIVE);
@@ -565,8 +559,9 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 						Arrays.asList(//
 								"8000", // Bethel Transit Terminal
 								"9240", // Foxhaven Dr & Foxhaven Pl
-								"9115", // Ritchie Wy & Rainbow Cr
-								"4939", // Salisbury Way & Mitchell St
+								"9115", // ++ Ritchie Wy & Rainbow Cr
+								"4939", // ++ Salisbury Way & Mitchell St
+								"4933", // Salisbury Wy & Wye Rd
 								"4000" // Ordze Transit Centre
 						)) //
 				.compileBothTripSort());
@@ -913,8 +908,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 					return 1_900_000 + digits;
 				}
 			}
-			MTLog.logFatal("Unexpected stop ID for %s!", gStop);
-			return -1;
+			throw new MTLog.Fatal("Unexpected stop ID for %s!", gStop);
 		}
 		return super.getStopId(gStop);
 	}
