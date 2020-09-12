@@ -30,9 +30,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 // https://data.strathcona.ca/
-// https://data.strathcona.ca/Transportation/Strathcona-County-Transit-Bus-Schedule-GTFS-Data-F/2ek5-rxs5
-// https://data.strathcona.ca/download/2ek5-rxs5/ZIP
-// http://webpub2.strathcona.ab.ca/GTFS/Google_Transit.zip
+// https://data.strathcona.ca/Transportation/Transit-Bus-Schedule-GTFS-Data-Feed-Zip-File/2ek5-rxs5
+// https://gtfs.edmonton.ca/TMGTFSRealTimeWebService/GTFS/GTFS.zip
 public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	public static void main(String[] args) {
@@ -77,8 +76,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		return super.excludeCalendarDate(gCalendarDates);
 	}
 
+	private static final String AGENCY_ID = "4"; // Strathcona County Transit
+
 	@Override
 	public boolean excludeRoute(GRoute gRoute) {
+		if (!gRoute.getAgencyId().equals(AGENCY_ID)) {
+			return true; // EXCLUDE
+		}
 		return super.excludeRoute(gRoute);
 	}
 
@@ -300,7 +304,10 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return; // split
 		}
-		mTrip.setHeadsignString(cleanTripHeadsign(gTrip.getTripHeadsign()), gTrip.getDirectionId());
+		mTrip.setHeadsignString(
+			cleanTripHeadsign(gTrip.getTripHeadsign()),
+			gTrip.getDirectionIdOrDefault()
+		);
 	}
 
 	@Override
@@ -325,17 +332,17 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	static {
 		HashMap<Long, RouteTripSpec> map2 = new HashMap<>();
-		map2.put(401L, new RouteTripSpec(401L, //
+		map2.put(401L, new RouteTripSpec(401L, // BECAUSE 2 directions with same direction ID
 				0, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC, //
 				1, MTrip.HEADSIGN_TYPE_STRING, DOWNTOWN) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"1973", // 107 St & 104 Av
 								"1292", // ++
 								"4000" // Ordze Transit Centre
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"4000", // Ordze Transit Centre
 								"1457", // ++
 								"1973" // 107 St & 104 Av
@@ -345,29 +352,29 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC, //
 				1, MTrip.HEADSIGN_TYPE_STRING, GOV_CTR) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"1732", // 107 St & 103 Av
 								"1629", // ++
 								"4000" // Ordze Transit Centre
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"4000", // Ordze Transit Centre
 								"1794", // ++
 								"1973" // 107 St & 104 Av
 						)) //
 				.compileBothTripSort());
-		map2.put(404L, new RouteTripSpec(404L, //
+		map2.put(404L, new RouteTripSpec(404L, // BECAUSE 2 directions with same direction ID
 				0, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC, //
 				1, MTrip.HEADSIGN_TYPE_STRING, U_OF_ALBERTA) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"2636", // University Transit Centre
 								"2722", // ++
 								"4000" // Ordze Transit Centre
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"4000", // Ordze Transit Centre
 								"2752", // ++
 								"2638", // 114 St & 85 Av
@@ -379,24 +386,24 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, DOWNTOWN) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"1973", // 107 St & 104 Av
 								"1439", // 101 Street & 103A Avenue
 								"1292", // 100 St & 102A Av
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"2289", // ++
 								"1973" // 107 St & 104 Av
 						)) //
 				.compileBothTripSort());
-		map2.put(413L, new RouteTripSpec(413L, //
+		map2.put(413L, new RouteTripSpec(413L, // BECAUSE 2 directions with same direction ID
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, GOV_CTR_NAIT) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"1223", // NAIT 106 St & 117 Av
 								"1973", // <> GOV 107 St & 104 Av
 								"1732", // GOV 107 St & 103 Av
@@ -406,7 +413,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"8004", // ++
 								"1728", // ++
@@ -419,12 +426,12 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, U_OF_ALBERTA) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"2636", // University Transit Centre
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"2636" // University Transit Centre
 						)) //
@@ -433,13 +440,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, MILLENNIUM_PLACE) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8800", // Premier Wy & Millennium Place
 								"8811", // Strathmoor Dr
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"8700", // ++
 								"8800" // Premier Wy & Millennium Place
@@ -449,13 +456,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, EMERALD_HILLS_ABJ) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"7921", // Emerald Dr & ABJ
 								"7436", // ++
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"8304", // ++
 								"7921" // Emerald Dr & ABJ
@@ -465,13 +472,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, EMERALD_HILLS) // EMERALD_HILLS_ABJ
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"7920", // Emerald Dr & ABJ
 								"8849", // ++
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"7437", // Dawson Dr & Donnely Terr
 								"7920" // Emerald Dr & ABJ
@@ -481,13 +488,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, SUMMERWOOD) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"7870", // Lakeland Dr & Aspen Tr
 								"7508", // ++
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"8304", // ++
 								"7870" // Lakeland Dr & Aspen Tr
@@ -497,13 +504,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, "Davidson Crk") // SUMMERWOOD
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"7272", // Primrose Blvd & Clover Bar Rd
 								"7431", // Davidson Dr & Darlington Dr
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"8135", // ++
 								"7272" // Primrose Blvd & Clover Bar Rd
@@ -513,13 +520,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, "Charlton Hts", // CLOVER_BAR, //
 				1, MTrip.HEADSIGN_TYPE_STRING, ABJ) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"7921", // Emerald Dr & ABJ
 								"7330", // ++
 								"8114" // Jim Common Dr & Crystal Ln
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8113", // Jim Common Dr & Crystal Ln
 								"7319", // ++
 								"7920" // Emerald Dr & ABJ
@@ -529,7 +536,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, HERITAGE_HILLS) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // != xx Bethel Transit Terminal #WTF!
 								"7199", // Highland Wy & Heritage Dr
 								"7124", // == Highland Dr & Heritage Lake Wy
@@ -539,7 +546,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"8000" // xx Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // == Bethel Transit Terminal
 								"1090", // !=
 								"7024", // !=
@@ -550,13 +557,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"4000", // Ordze Transit Centre
 								"9157", // Ritchie Wy & Regency Dr
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"9240", // Foxhaven Dr & Foxhaven Pl
 								"9115", // ++ Ritchie Wy & Rainbow Cr
@@ -569,7 +576,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, REGENCY) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"9115", // != Ritchie Wy & Rainbow Cr <=
 								"9157", // != Ritchie Wy & Regency Dr <=
 								"9239", // != Foxhaven Dr & Foxhaven Ct
@@ -577,7 +584,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"9150", // == Foxhaven Dr & Foxhaven Pl
 								"9240", // != Foxhaven Dr & Foxhaven Pl
@@ -589,13 +596,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, NOTTINGHAM) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"9015", // Nottingham Blvd & Nottingham Rd
 								"9180", // Granada Blvd & Forrest Dr
 								"8000"// Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"1002", // ++
 								"9015" // Nottingham Blvd & Nottingham Rd
@@ -605,13 +612,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"4000", // Ordze Transit Centre
 								"6012", // Fir St & Willow St
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"1088", // Gatewood Blvd & Galaxy Wy
 								"6065", // Fir St & Willow St
@@ -622,7 +629,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, "AM", //
 				1, MTrip.HEADSIGN_TYPE_STRING, "PM") //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // xx Bethel Transit Terminal
 								"1013", // !=
 								"2001", //
@@ -633,7 +640,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"8000" // xx Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // xx Bethel Transit Terminal
 								"1013", // !=
 								"6079", //
@@ -647,13 +654,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, CITP) // Glen Allan
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"6048", // Oak St & Sherwood Dr
 								"1024", // ++
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"1033", // ++
 								"6029" // Oak St & Glenmore Av
@@ -663,13 +670,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, CITP) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"2001", // Festival Ln & Festival Av
 								"6072", // ++
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"8105", // ++
 								"2001" // Festival Ln & Festival Av
@@ -679,13 +686,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"4000", // Ordze Transit Centre
 								"5040", // Village Dr & Village Dr
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"5005", // Main Blvd & Mardale Cr
 								"5115", // Village Dr & Village Dr
@@ -696,13 +703,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, VILLAGE) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"5040", // Village Dr & Village Dr
 								"5078", // ++
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"5083", // ++
 								"5115" // Village Dr & Village Dr
@@ -712,13 +719,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, BROADMOOR) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"5041", // Kaska Rd Chippewa Rd
 								"5138", // ++
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"5005", // Main Blvd & Mardale Cr
 								"5041" // Kaska Rd Chippewa Rd
@@ -728,7 +735,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, MILLENNIUM_PLACE) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8800", // == Premier Wy & Millennium Place
 								"8806", // Premier Wy & Prairie Dr
 								"8812", // Strathmoor Dr
@@ -738,7 +745,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // Bethel Transit Terminal
 								"8816", // != Streambank Av =>
 								"8010", // != Broadway Blvd at Robin Hood CONTINUE
@@ -750,7 +757,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, SUMMERWOOD) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"7807", // Clover Bar Rd & Jubilee Dr
 								"7508", // Summerwood Blvd & Clover Bar Rd
 								"7406", // Davidson Dr & Darlington Dr
@@ -760,7 +767,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // == Bethel Transit Terminal
 								"8010", // != Broadway Blvd at Robin Hood
 								"8816", // != Streambank Av =>
@@ -773,7 +780,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, REGENCY) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"9157", // Ritchie Wy & Regency Dr
 								"9225", // Regency Dr & Ridgeland Cr
 								"7199", // Highland Wy & Heritage Dr
@@ -784,7 +791,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // == Bethel Transit Terminal
 								"8010", // != Broadway Blvd at Robin Hood
 								"8816", // != Streambank Av =>
@@ -798,7 +805,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, BRENTWOOD) //
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"6097", // Alder Av & Alderwood Cr
 								"6115", // Alder Av & Ivy Cr
 								"6065", // Fir St & Willow St
@@ -810,7 +817,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // == Bethel Transit Terminal
 								"8010", // != Broadway Blvd at Robin Hood
 								"8816", // != Streambank Av =>
@@ -828,7 +835,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC) // Woodbridge
 				.addTripSort(0, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"4000", // Ordze Transit Centre
 								"6012", // Fir St & Willow St
 								"9353", // Clover Bar Rd & Wye Rd
@@ -842,7 +849,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"8000" // Bethel Transit Terminal
 						)) //
 				.addTripSort(1, //
-						Arrays.asList(//
+						Arrays.asList( //
 								"8000", // == Bethel Transit Terminal
 								"8010", // != Broadway Blvd at Robin Hood
 								"8816", // != Streambank Av =>
@@ -861,6 +868,17 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 				.compileBothTripSort());
 		ALL_ROUTE_TRIPS2 = map2;
 	}
+
+	public static final Pattern STARTS_WITH_S_ = Pattern.compile( //
+			"((^){1}(S))", //
+			Pattern.CASE_INSENSITIVE);
+
+	@Override
+	public String cleanStopOriginalId(String gStopId) {
+		gStopId = STARTS_WITH_S_.matcher(gStopId).replaceAll(StringUtils.EMPTY);
+		return gStopId;
+	}
+
 
 	@Override
 	public int compareEarly(long routeId, List<MTripStop> list1, List<MTripStop> list2, MTripStop ts1, MTripStop ts2, GStop ts1GStop, GStop ts2GStop) {
@@ -899,18 +917,18 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public int getStopId(GStop gStop) {
-		if (!Utils.isDigitsOnly(gStop.getStopId())) {
-			Matcher matcher = DIGITS.matcher(gStop.getStopId());
+		String stopId = cleanStopOriginalId(gStop.getStopId());
+		if (!Utils.isDigitsOnly(stopId)) {
+			Matcher matcher = DIGITS.matcher(stopId);
 			if (matcher.find()) {
 				int digits = Integer.parseInt(matcher.group());
-				String stopId = gStop.getStopId().toLowerCase(Locale.ENGLISH);
-				if (stopId.startsWith("s")) {
+				if (stopId.toLowerCase(Locale.ENGLISH).startsWith("s")) {
 					return 1_900_000 + digits;
 				}
 			}
 			throw new MTLog.Fatal("Unexpected stop ID for %s!", gStop);
 		}
-		return super.getStopId(gStop);
+		return Integer.parseInt(stopId);
 	}
 
 	@Override
