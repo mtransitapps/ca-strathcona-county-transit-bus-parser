@@ -1,12 +1,14 @@
 package org.mtransit.parser.ca_strathcona_county_transit_bus;
 
-import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.mtransit.parser.CleanUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.MTLog;
 import org.mtransit.parser.Pair;
 import org.mtransit.parser.SplitUtils;
 import org.mtransit.parser.SplitUtils.RouteTripSpec;
+import org.mtransit.parser.StringUtils;
 import org.mtransit.parser.Utils;
 import org.mtransit.parser.gtfs.data.GCalendar;
 import org.mtransit.parser.gtfs.data.GCalendarDate;
@@ -30,13 +32,15 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.mtransit.parser.StringUtils.EMPTY;
+
 // https://data.strathcona.ca/
 // https://data.strathcona.ca/Transportation/Transit-Bus-Schedule-GTFS-Data-Feed-Zip-File/2ek5-rxs5
 // https://gtfs.edmonton.ca/TMGTFSRealTimeWebService/GTFS/GTFS.zip
 // https://stalbert.ca/site/assets/files/3840/google_transit.zip
 public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
-	public static void main(String[] args) {
+	public static void main(@Nullable String[] args) {
 		if (args == null || args.length == 0) {
 			args = new String[3];
 			args[0] = "input/gtfs.zip";
@@ -46,34 +50,35 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		new StrathconaCountyTransitBusAgencyTools().start(args);
 	}
 
-	private HashSet<String> serviceIds;
+	@Nullable
+	private HashSet<Integer> serviceIdInts;
 
 	@Override
-	public void start(String[] args) {
+	public void start(@NotNull String[] args) {
 		MTLog.log("Generating Strathcona County Transit bus data...");
 		long start = System.currentTimeMillis();
-		this.serviceIds = extractUsefulServiceIds(args, this, true);
+		this.serviceIdInts = extractUsefulServiceIdInts(args, this, true);
 		super.start(args);
 		MTLog.log("Generating Strathcona County Transit bus data... DONE in %s.", Utils.getPrettyDuration(System.currentTimeMillis() - start));
 	}
 
 	@Override
 	public boolean excludingAll() {
-		return this.serviceIds != null && this.serviceIds.isEmpty();
+		return this.serviceIdInts != null && this.serviceIdInts.isEmpty();
 	}
 
 	@Override
-	public boolean excludeCalendar(GCalendar gCalendar) {
-		if (this.serviceIds != null) {
-			return excludeUselessCalendar(gCalendar, this.serviceIds);
+	public boolean excludeCalendar(@NotNull GCalendar gCalendar) {
+		if (this.serviceIdInts != null) {
+			return excludeUselessCalendarInt(gCalendar, this.serviceIdInts);
 		}
 		return super.excludeCalendar(gCalendar);
 	}
 
 	@Override
-	public boolean excludeCalendarDate(GCalendarDate gCalendarDates) {
-		if (this.serviceIds != null) {
-			return excludeUselessCalendarDate(gCalendarDates, this.serviceIds);
+	public boolean excludeCalendarDate(@NotNull GCalendarDate gCalendarDates) {
+		if (this.serviceIdInts != null) {
+			return excludeUselessCalendarDateInt(gCalendarDates, this.serviceIdInts);
 		}
 		return super.excludeCalendarDate(gCalendarDates);
 	}
@@ -81,7 +86,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	private static final int AGENCY_ID_INT = GIDs.getInt("4"); // Strathcona County Transit
 
 	@Override
-	public boolean excludeRoute(GRoute gRoute) {
+	public boolean excludeRoute(@NotNull GRoute gRoute) {
 		if (gRoute.isDifferentAgency(AGENCY_ID_INT)) {
 			return true; // EXCLUDE
 		}
@@ -89,13 +94,14 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
-	public boolean excludeTrip(GTrip gTrip) {
-		if (this.serviceIds != null) {
-			return excludeUselessTrip(gTrip, this.serviceIds);
+	public boolean excludeTrip(@NotNull GTrip gTrip) {
+		if (this.serviceIdInts != null) {
+			return excludeUselessTripInt(gTrip, this.serviceIdInts);
 		}
 		return super.excludeTrip(gTrip);
 	}
 
+	@NotNull
 	@Override
 	public Integer getAgencyRouteType() {
 		return MAgency.ROUTE_TYPE_BUS;
@@ -108,7 +114,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	private static final long RID_EW_B = 20_000L;
 
 	@Override
-	public long getRouteId(GRoute gRoute) {
+	public long getRouteId(@NotNull GRoute gRoute) {
 		if (Utils.isDigitsOnly(gRoute.getRouteShortName())) {
 			return Long.parseLong(gRoute.getRouteShortName());
 		}
@@ -180,8 +186,9 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	private static final String RLN_494 = DAB + " E";
 	private static final String RLN_495 = DAB + " F";
 
+	@NotNull
 	@Override
-	public String getRouteLongName(GRoute gRoute) {
+	public String getRouteLongName(@NotNull GRoute gRoute) {
 		if (StringUtils.isEmpty(gRoute.getRouteLongName())) {
 			if (!Utils.isDigitsOnly(gRoute.getRouteShortName())) {
 				// @formatter:off
@@ -231,7 +238,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	}
 
 	private String cleanRouteLongName(GRoute gRoute) {
-		String routeLongName = gRoute.getRouteLongName();
+		String routeLongName = gRoute.getRouteLongNameOrDefault();
 		routeLongName = routeLongName.toLowerCase(Locale.ENGLISH);
 		routeLongName = CleanUtils.cleanSlashes(routeLongName);
 		return CleanUtils.cleanLabel(routeLongName);
@@ -241,6 +248,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	private static final String AGENCY_COLOR = AGENCY_COLOR_GREEN;
 
+	@NotNull
 	@Override
 	public String getAgencyColor() {
 		return AGENCY_COLOR;
@@ -254,86 +262,91 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	private static final String RSN_451B = "451B";
 
 	@SuppressWarnings("DuplicateBranchesInSwitch")
+	@Nullable
 	@Override
-	public String getRouteColor(GRoute gRoute) {
-		if (!Utils.isDigitsOnly(gRoute.getRouteShortName())) {
+	public String getRouteColor(@NotNull GRoute gRoute) {
+		String routeColor = gRoute.getRouteColor();
+		if ("FFFFFF".equalsIgnoreCase(routeColor)) {
+			routeColor = null;
+		}
+		if (StringUtils.isEmpty(routeColor)) {
+			if (!Utils.isDigitsOnly(gRoute.getRouteShortName())) {
+				// @formatter:off
+				if (RSN_441A.equals(gRoute.getRouteShortName())) { return "832B30";
+				} else if (RSN_433A.equals(gRoute.getRouteShortName())) { return "ED0E58";
+				} else if (RSN_443A.equals(gRoute.getRouteShortName())) { return "231F20";
+				} else if (RSN_443B.equals(gRoute.getRouteShortName())) { return "00A34E";
+				} else if (RSN_451A.equals(gRoute.getRouteShortName())) { return "6E6EAB";
+				} else if (RSN_451B.equals(gRoute.getRouteShortName())) { return "D04CAE";
+				// @formatter:on
+				} else {
+					throw new MTLog.Fatal("Unexpected route color %s!", gRoute);
+				}
+			}
+			int rsn = Integer.parseInt(gRoute.getRouteShortName());
+			switch (rsn) {
 			// @formatter:off
-			if (RSN_441A.equals(gRoute.getRouteShortName())) { return "832B30";
-			} else if (RSN_433A.equals(gRoute.getRouteShortName())) { return "ED0E58";
-			} else if (RSN_443A.equals(gRoute.getRouteShortName())) { return "231F20";
-			} else if (RSN_443B.equals(gRoute.getRouteShortName())) { return "00A34E";
-			} else if (RSN_451A.equals(gRoute.getRouteShortName())) { return "6E6EAB";
-			} else if (RSN_451B.equals(gRoute.getRouteShortName())) { return "D04CAE";
+			case 401: return "F78F20";
+			case 403: return "9F237E";
+			case 404: return "FFC745";
+			case 411: return "6BC7B9";
+			case 413: return "0076BC";
+			case 414: return "F16278";
+			case 420: return "ED1C24";
+			case 430: return "2E3192";
+			case 431: return "FFF30C";
+			case 432: return "08796F";
+			case 433: return "652290";
+			case 440: return "7BC928";
+			case 441: return "832B30";
+			case 442: return "2E3192";
+			case 443: return "006A2F";
+			case 450: return "EC008C";
+			case 451: return "F57415";
+			case 490: return "1270BB";
+			case 491: return "ED2D32";
+			case 492: return "0F6B3B";
+			case 493: return "61CACA";
+			case 494: return "E59A12";
+			case 495: return null;
 			// @formatter:on
-			} else {
+			default:
 				throw new MTLog.Fatal("Unexpected route color %s!", gRoute);
 			}
 		}
-		int rsn = Integer.parseInt(gRoute.getRouteShortName());
-		switch (rsn) {
-		// @formatter:off
-		case 401: return "F78F20";
-		case 403: return "9F237E";
-		case 404: return "FFC745";
-		case 411: return "6BC7B9";
-		case 413: return "0076BC";
-		case 414: return "F16278";
-		case 420: return "ED1C24";
-		case 430: return "2E3192";
-		case 431: return "FFF30C";
-		case 432: return "08796F";
-		case 433: return "652290";
-		case 440: return "7BC928";
-		case 441: return "832B30";
-		case 442: return "2E3192";
-		case 443: return "006A2F";
-		case 450: return "EC008C";
-		case 451: return "F57415";
-		case 490: return "1270BB";
-		case 491: return "ED2D32";
-		case 492: return "0F6B3B";
-		case 493: return "61CACA";
-		case 494: return "E59A12";
-		case 495: return null;
-		// @formatter:on
-		default:
-			throw new MTLog.Fatal("Unexpected route color %s!", gRoute);
-		}
+		return super.getRouteColor(gRoute);
 	}
 
 	@Override
-	public void setTripHeadsign(MRoute mRoute, MTrip mTrip, GTrip gTrip, GSpec gtfs) {
+	public void setTripHeadsign(@NotNull MRoute mRoute, @NotNull MTrip mTrip, @NotNull GTrip gTrip, @NotNull GSpec gtfs) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return; // split
 		}
 		mTrip.setHeadsignString(
-			cleanTripHeadsign(gTrip.getTripHeadsign()),
-			gTrip.getDirectionIdOrDefault()
+				cleanTripHeadsign(gTrip.getTripHeadsignOrDefault()),
+				gTrip.getDirectionIdOrDefault()
 		);
 	}
 
 	@Override
-	public boolean mergeHeadsign(MTrip mTrip, MTrip mTripToMerge) {
+	public boolean mergeHeadsign(@NotNull MTrip mTrip, @NotNull MTrip mTripToMerge) {
 		throw new MTLog.Fatal("Unexpected trips to merge: %s & %s!", mTrip, mTripToMerge);
 	}
 
-	private static final Pattern TRANSIT_TERMINAL = Pattern.compile("(transit terminal)", Pattern.CASE_INSENSITIVE);
-	private static final String TRANSIT_TERMINAL_REPLACEMENT = "TT";
-	private static final Pattern TRANSIT_CENTER = Pattern.compile("(transit (center|centre))", Pattern.CASE_INSENSITIVE);
-	private static final String TRANSIT_CENTER_REPLACEMENT = "TC";
-
+	@NotNull
 	@Override
-	public String cleanTripHeadsign(String tripHeadsign) {
-		tripHeadsign = TRANSIT_TERMINAL.matcher(tripHeadsign).replaceAll(TRANSIT_TERMINAL_REPLACEMENT);
-		tripHeadsign = TRANSIT_CENTER.matcher(tripHeadsign).replaceAll(TRANSIT_CENTER_REPLACEMENT);
+	public String cleanTripHeadsign(@NotNull String tripHeadsign) {
+		tripHeadsign = CleanUtils.cleanBounds(tripHeadsign);
+		tripHeadsign = CleanUtils.cleanNumbers(tripHeadsign);
 		tripHeadsign = CleanUtils.cleanStreetTypes(tripHeadsign);
 		return CleanUtils.cleanLabel(tripHeadsign);
 	}
 
-	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
+	private static final HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
 
 	static {
 		HashMap<Long, RouteTripSpec> map2 = new HashMap<>();
+		//noinspection deprecation
 		map2.put(401L, new RouteTripSpec(401L, // BECAUSE 2 directions with same direction ID
 				0, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC, //
 				1, MTrip.HEADSIGN_TYPE_STRING, DOWNTOWN) //
@@ -350,6 +363,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"1973" // 107 St & 104 Av
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(403L, new RouteTripSpec(403L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC, //
 				1, MTrip.HEADSIGN_TYPE_STRING, GOV_CTR) //
@@ -366,6 +380,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"1973" // 107 St & 104 Av
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(404L, new RouteTripSpec(404L, // BECAUSE 2 directions with same direction ID
 				0, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC, //
 				1, MTrip.HEADSIGN_TYPE_STRING, U_OF_ALBERTA) //
@@ -384,6 +399,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"2636" // University Transit Centre
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(411L, new RouteTripSpec(411L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, DOWNTOWN) //
@@ -401,6 +417,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"1973" // 107 St & 104 Av
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(413L, new RouteTripSpec(413L, // BECAUSE 2 directions with same direction ID
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, GOV_CTR_NAIT) //
@@ -424,6 +441,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"1227" // NAIT 106 St & 117 Av
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(414L, new RouteTripSpec(414L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, U_OF_ALBERTA) //
@@ -438,6 +456,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"2636" // University Transit Centre
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(420L, new RouteTripSpec(420L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, MILLENNIUM_PLACE) //
@@ -454,6 +473,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"8800" // Premier Wy & Millennium Place
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(430L, new RouteTripSpec(430L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, EMERALD_HILLS_ABJ) //
@@ -470,6 +490,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"7921" // Emerald Dr & ABJ
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(431L, new RouteTripSpec(431L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, EMERALD_HILLS) // EMERALD_HILLS_ABJ
@@ -486,6 +507,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"7920" // Emerald Dr & ABJ
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(432L, new RouteTripSpec(432L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, SUMMERWOOD) //
@@ -502,6 +524,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"7870" // Lakeland Dr & Aspen Tr
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(433L, new RouteTripSpec(433L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, "Davidson Crk") // SUMMERWOOD
@@ -518,6 +541,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"7272" // Primrose Blvd & Clover Bar Rd
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(433L + RID_EW_A, new RouteTripSpec(433L + RID_EW_A, // 433A
 				0, MTrip.HEADSIGN_TYPE_STRING, "Charlton Hts", // CLOVER_BAR, //
 				1, MTrip.HEADSIGN_TYPE_STRING, ABJ) //
@@ -534,6 +558,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"7920" // Emerald Dr & ABJ
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(440L, new RouteTripSpec(440L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, HERITAGE_HILLS) //
@@ -555,6 +580,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"7199" // == Highland Wy & Heritage Dr
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(441L, new RouteTripSpec(441L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC) //
@@ -574,6 +600,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"4000" // Ordze Transit Centre
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(441L + RID_EW_A, new RouteTripSpec(441L + RID_EW_A, // 441A
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, REGENCY) //
@@ -594,6 +621,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"9157" // != Ritchie Wy & Regency Dr =>
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(442L, new RouteTripSpec(442L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, NOTTINGHAM) //
@@ -610,6 +638,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"9015" // Nottingham Blvd & Nottingham Rd
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(443L, new RouteTripSpec(443L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC) //
@@ -627,6 +656,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"4000" // Ordze Transit Centre
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(443L + RID_EW_A, new RouteTripSpec(443L + RID_EW_A, // 443A
 				0, MTrip.HEADSIGN_TYPE_STRING, "AM", //
 				1, MTrip.HEADSIGN_TYPE_STRING, "PM") //
@@ -652,6 +682,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"8000" // xx Bethel Transit Terminal
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(443L + RID_EW_B, new RouteTripSpec(443L + RID_EW_B, // 443B
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, CITP) // Glen Allan
@@ -668,6 +699,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"6029" // Oak St & Glenmore Av
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(450L, new RouteTripSpec(450L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, CITP) //
@@ -684,6 +716,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"2001" // Festival Ln & Festival Av
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(451L, new RouteTripSpec(451L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC) //
@@ -701,6 +734,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"4000" // Ordze Transit Centre
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(451L + RID_EW_A, new RouteTripSpec(451L + RID_EW_A, // 451A
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, VILLAGE) //
@@ -717,6 +751,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"5115" // Village Dr & Village Dr
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(451L + RID_EW_B, new RouteTripSpec(451L + RID_EW_B, // 451B
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, BROADMOOR) //
@@ -733,6 +768,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"5041" // Kaska Rd Chippewa Rd
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(490L, new RouteTripSpec(490L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, MILLENNIUM_PLACE) //
@@ -755,6 +791,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"8800" // == Premier Wy & Millennium Place
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(491L, new RouteTripSpec(491L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, SUMMERWOOD) //
@@ -778,6 +815,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"7807" // Clover Bar Rd & Jubilee Dr
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(492L, new RouteTripSpec(492L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, REGENCY) //
@@ -803,6 +841,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"9157" // Ritchie Wy & Regency Dr
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(493L, new RouteTripSpec(493L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, BRENTWOOD) //
@@ -833,6 +872,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 								"6097" // Alder Av & Alderwood Cr
 						)) //
 				.compileBothTripSort());
+		//noinspection deprecation
 		map2.put(494L, new RouteTripSpec(494L, //
 				0, MTrip.HEADSIGN_TYPE_STRING, BETHEL_TT, //
 				1, MTrip.HEADSIGN_TYPE_STRING, ORDZE_TC) // Woodbridge
@@ -871,43 +911,44 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		ALL_ROUTE_TRIPS2 = map2;
 	}
 
-	public static final Pattern STARTS_WITH_S_ = Pattern.compile( //
-			"((^){1}(S))", //
-			Pattern.CASE_INSENSITIVE);
+	private static final Pattern STARTS_WITH_S_ = Pattern.compile("((^)(S))", Pattern.CASE_INSENSITIVE);
 
+	@NotNull
 	@Override
-	public String cleanStopOriginalId(String gStopId) {
-		gStopId = STARTS_WITH_S_.matcher(gStopId).replaceAll(StringUtils.EMPTY);
+	public String cleanStopOriginalId(@NotNull String gStopId) {
+		gStopId = STARTS_WITH_S_.matcher(gStopId).replaceAll(EMPTY);
 		return gStopId;
 	}
 
-
 	@Override
-	public int compareEarly(long routeId, List<MTripStop> list1, List<MTripStop> list2, MTripStop ts1, MTripStop ts2, GStop ts1GStop, GStop ts2GStop) {
+	public int compareEarly(long routeId, @NotNull List<MTripStop> list1, @NotNull List<MTripStop> list2, @NotNull MTripStop ts1, @NotNull MTripStop ts2, @NotNull GStop ts1GStop, @NotNull GStop ts2GStop) {
 		if (ALL_ROUTE_TRIPS2.containsKey(routeId)) {
 			return ALL_ROUTE_TRIPS2.get(routeId).compare(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop, this);
 		}
 		return super.compareEarly(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop);
 	}
 
+	@NotNull
 	@Override
-	public ArrayList<MTrip> splitTrip(MRoute mRoute, GTrip gTrip, GSpec gtfs) {
+	public ArrayList<MTrip> splitTrip(@NotNull MRoute mRoute, @Nullable GTrip gTrip, @NotNull GSpec gtfs) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return ALL_ROUTE_TRIPS2.get(mRoute.getId()).getAllTrips();
 		}
 		return super.splitTrip(mRoute, gTrip, gtfs);
 	}
 
+	@NotNull
 	@Override
-	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, ArrayList<MTrip> splitTrips, GSpec routeGTFS) {
+	public Pair<Long[], Integer[]> splitTripStop(@NotNull MRoute mRoute, @NotNull GTrip gTrip, @NotNull GTripStop gTripStop, @NotNull ArrayList<MTrip> splitTrips, @NotNull GSpec routeGTFS) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, ALL_ROUTE_TRIPS2.get(mRoute.getId()), this);
 		}
 		return super.splitTripStop(mRoute, gTrip, gTripStop, splitTrips, routeGTFS);
 	}
 
+	@NotNull
 	@Override
-	public String cleanStopName(String gStopName) {
+	public String cleanStopName(@NotNull String gStopName) {
 		gStopName = CleanUtils.CLEAN_AT.matcher(gStopName).replaceAll(CleanUtils.CLEAN_AT_REPLACEMENT);
 		gStopName = CleanUtils.CLEAN_AND.matcher(gStopName).replaceAll(CleanUtils.CLEAN_AND_REPLACEMENT);
 		gStopName = CleanUtils.cleanStreetTypes(gStopName);
@@ -918,7 +959,8 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	private static final Pattern DIGITS = Pattern.compile("[\\d]+");
 
 	@Override
-	public int getStopId(GStop gStop) {
+	public int getStopId(@NotNull GStop gStop) {
+		//noinspection deprecation
 		String stopId = cleanStopOriginalId(gStop.getStopId());
 		if (!Utils.isDigitsOnly(stopId)) {
 			Matcher matcher = DIGITS.matcher(stopId);
@@ -933,10 +975,11 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		return Integer.parseInt(stopId);
 	}
 
+	@NotNull
 	@Override
-	public String getStopCode(GStop gStop) {
+	public String getStopCode(@NotNull GStop gStop) {
 		if ("0".equals(gStop.getStopCode())) {
-			return null;
+			return EMPTY;
 		}
 		return super.getStopCode(gStop);
 	}
