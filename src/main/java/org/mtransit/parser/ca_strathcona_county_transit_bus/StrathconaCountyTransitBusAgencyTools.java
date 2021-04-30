@@ -8,6 +8,7 @@ import org.mtransit.commons.StringUtils;
 import org.mtransit.parser.ColorUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.MTLog;
+import org.mtransit.parser.gtfs.data.GAgency;
 import org.mtransit.parser.gtfs.data.GIDs;
 import org.mtransit.parser.gtfs.data.GRoute;
 import org.mtransit.parser.gtfs.data.GStop;
@@ -23,7 +24,6 @@ import static org.mtransit.parser.StringUtils.EMPTY;
 // https://data.strathcona.ca/
 // https://data.strathcona.ca/Transportation/Transit-Bus-Schedule-GTFS-Data-Feed-Zip-File/2ek5-rxs5
 // https://gtfs.edmonton.ca/TMGTFSRealTimeWebService/GTFS/GTFS.zip
-// https://stalbert.ca/site/assets/files/3840/google_transit.zip
 public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	public static void main(@NotNull String[] args) {
@@ -44,11 +44,11 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	private static final int AGENCY_ID_INT = GIDs.getInt("4"); // Strathcona County Transit
 
 	@Override
-	public boolean excludeRoute(@NotNull GRoute gRoute) {
-		if (gRoute.isDifferentAgency(AGENCY_ID_INT)) {
-			return true; // EXCLUDE
+	public boolean excludeAgency(@NotNull GAgency gAgency) {
+		if (gAgency.getAgencyIdInt() != AGENCY_ID_INT) {
+			return EXCLUDE;
 		}
-		return super.excludeRoute(gRoute);
+		return super.excludeAgency(gAgency);
 	}
 
 	@Override
