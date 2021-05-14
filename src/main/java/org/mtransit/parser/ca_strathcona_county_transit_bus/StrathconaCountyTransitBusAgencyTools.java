@@ -169,13 +169,6 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public boolean directionSplitterEnabled(long routeId) {
-		//noinspection RedundantIfStatement
-		if (routeId == 413L
-				|| routeId == 441L
-				|| routeId == 443L
-				|| routeId == 451L) {
-			return true;
-		}
 		return false;
 	}
 
