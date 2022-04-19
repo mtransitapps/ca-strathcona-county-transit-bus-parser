@@ -154,7 +154,42 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public boolean directionSplitterEnabled(long routeId) {
-		return false;
+		if (routeId == 401L) {
+			return true; // ENABLED
+		} else if (routeId == 404L) {
+			return true; // ENABLED
+		} else if (routeId == 420L) {
+			return true; // ENABLED
+		} else if (routeId == 432L) {
+			return true; // ENABLED
+		} else if (routeId == 433L) {
+			return true; // ENABLED
+		} else if (routeId == 442L) {
+			return true; // ENABLED
+		} else if (routeId == 450L) {
+			return true; // ENABLED
+		}
+		return false; // DISABLED for most
+	}
+
+	@Override
+	public boolean directionOverrideId(long routeId) {
+		if (routeId == 401L) {
+			return true;
+		} else if (routeId == 404L) {
+			return true;
+		} else if (routeId == 420L) {
+			return true;
+		} else if (routeId == 432L) {
+			return true;
+		} else if (routeId == 433L) {
+			return true;
+		} else if (routeId == 442L) {
+			return true;
+		} else if (routeId == 450L) {
+			return true;
+		}
+		return super.directionOverrideId(routeId);
 	}
 
 	@Override
