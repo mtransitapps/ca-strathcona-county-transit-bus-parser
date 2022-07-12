@@ -148,11 +148,6 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
-	public boolean directionSplitterEnabled() {
-		return true;
-	}
-
-	@Override
 	public boolean directionSplitterEnabled(long routeId) {
 		if (routeId == 401L) {
 			return true; // ENABLED
@@ -169,7 +164,7 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		} else if (routeId == 450L) {
 			return true; // ENABLED
 		}
-		return false; // DISABLED for most
+		return super.directionSplitterEnabled(routeId);
 	}
 
 	@Override
