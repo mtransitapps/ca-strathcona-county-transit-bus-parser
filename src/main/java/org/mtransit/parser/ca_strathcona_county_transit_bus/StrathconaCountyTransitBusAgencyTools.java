@@ -105,41 +105,40 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	@Nullable
 	@Override
 	public String provideMissingRouteColor(@NotNull GRoute gRoute) {
-		switch (gRoute.getRouteShortName()) {
-		// @formatter:off
-		case "401": return "F78F20";
-		case "403": return "9F237E";
-		case "404": return "FFC745";
-		case "411": return "6BC7B9";
-		case "413": return "0076BC";
-		case "414": return "F16278";
-		case "420": return "ED1C24";
-		case "430": return "2E3192";
-		case "431": return "FFF30C";
-		case "432": return "08796F";
-		case "433": return "652290";
-		case "433A": return "ED0E58";
-		case "440": return "7BC928";
-		case "441": return "832B30";
-		case "441A": return "832B30";
-		case "442": return "2E3192";
-		case "443": return "006A2F";
-		case "443A": return "231F20";
-		case "443B": return "00A34E";
-		case "450": return "EC008C";
-		case "451": return "F57415";
-		case "451A": return "6E6EAB";
-		case "451B": return "D04CAE";
-		case "490": return "1270BB";
-		case "491": return "ED2D32";
-		case "492": return "0F6B3B";
-		case "493": return "61CACA";
-		case "494": return "E59A12";
-		case "495": return null; // TODO
-		// @formatter:on
-		default:
-			throw new MTLog.Fatal("Unexpected route color %s!", gRoute);
-		}
+		return switch (gRoute.getRouteShortName()) {
+			// @formatter:off
+			case "401" -> "F78F20";
+			case "403" -> "9F237E";
+			case "404" -> "FFC745";
+			case "411" -> "6BC7B9";
+			case "413" -> "0076BC";
+			case "414" -> "F16278";
+			case "420" -> "ED1C24";
+			case "430" -> "2E3192";
+			case "431" -> "FFF30C";
+			case "432" -> "08796F";
+			case "433" -> "652290";
+			case "433A" -> "ED0E58";
+			case "440" -> "7BC928";
+			case "441" -> "832B30";
+			case "441A" -> "832B30";
+			case "442" -> "2E3192";
+			case "443" -> "006A2F";
+			case "443A" -> "231F20";
+			case "443B" -> "00A34E";
+			case "450" -> "EC008C";
+			case "451" -> "F57415";
+			case "451A" -> "6E6EAB";
+			case "451B" -> "D04CAE";
+			case "490" -> "1270BB";
+			case "491" -> "ED2D32";
+			case "492" -> "0F6B3B";
+			case "493" -> "61CACA";
+			case "494" -> "E59A12";
+			case "495"-> null; // TODO
+			// @formatter:on
+			default -> throw new MTLog.Fatal("Unexpected route color %s!", gRoute);
+		};
 	}
 
 	@Override
