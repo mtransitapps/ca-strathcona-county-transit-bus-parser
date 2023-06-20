@@ -78,6 +78,15 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
+	public @Nullable Long convertRouteIdFromShortNameNotSupported(@NotNull String routeShortName) {
+		switch (routeShortName) {
+		case "HER": // Heritage Days Shuttle
+			return 99_001L;
+		}
+		return super.convertRouteIdFromShortNameNotSupported(routeShortName);
+	}
+
+	@Override
 	public boolean defaultAgencyColorEnabled() {
 		return true;
 	}
@@ -136,9 +145,10 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 		case "493": return "61CACA";
 		case "494": return "E59A12";
 		case "495": return null; // TODO
+		case "HER": return null; // TODO
 		// @formatter:on
 		default:
-			throw new MTLog.Fatal("Unexpected route color %s!", gRoute);
+			throw new MTLog.Fatal("Unexpected route color %s!", gRoute.toStringPlus());
 		}
 	}
 
