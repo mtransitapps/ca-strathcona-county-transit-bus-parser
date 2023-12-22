@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mtransit.commons.CharUtils;
 import org.mtransit.commons.CleanUtils;
+import org.mtransit.commons.FeatureFlags;
 import org.mtransit.parser.ColorUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.MTLog;
@@ -20,9 +21,7 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// https://data.strathcona.ca/
-// https://data.strathcona.ca/Transportation/Transit-Bus-Schedule-GTFS-Data-Feed-Zip-File/2ek5-rxs5
-// https://gtfs.edmonton.ca/TMGTFSRealTimeWebService/GTFS/GTFS.zip
+// https://data.edmonton.ca/Transit/ETS-Bus-Schedule-GTFS-Data-Schedules-zipped-files/urjq-fvmq
 public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 
 	public static void main(@NotNull String[] args) {
@@ -84,6 +83,15 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 			return 99_001L;
 		}
 		return super.convertRouteIdFromShortNameNotSupported(routeShortName);
+	}
+
+	@Override
+	public @NotNull String getRouteShortName(@NotNull GRoute gRoute) {
+		if (FeatureFlags.F_USE_GTFS_ID_HASH_INT) {
+			return super.getRouteShortName(gRoute);
+		}
+		//noinspection deprecation
+		return gRoute.getRouteId(); // used by GTFS-RT
 	}
 
 	@Override
@@ -254,9 +262,13 @@ public class StrathconaCountyTransitBusAgencyTools extends DefaultAgencyTools {
 	@NotNull
 	@Override
 	public String getStopCode(@NotNull GStop gStop) {
-		if ("0".equals(gStop.getStopCode())) {
-			return EMPTY;
+		if (FeatureFlags.F_USE_GTFS_ID_HASH_INT) {
+			if ("0".equals(gStop.getStopCode())) {
+				return EMPTY;
+			}
+			return super.getStopCode(gStop);
 		}
-		return super.getStopCode(gStop);
+		//noinspection deprecation
+		return gStop.getStopId(); // used by GTFS-RT
 	}
 }
